@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<title>The web game</title>
+		
+		<script>
+			function checkName() 
+			{
+				if(document.someForm.username.value == "") 
+				{
+					alert("please enter a Name");
+					return false;
+				}
+				else
+				{
+					document.cookie='username='+document.someForm.username.value+';'//+ 'expires=Thu, 18 Dec 2013 12:00:00 GMT; path=/';
+					window.location.href='./game.html';
+				}
+			}
+		</script>
+		
+	</head>
+
+	<body>
+		<h1>The Web Game</h1>
+		<div>
+		<form name='someForm' method='get'>
+			Name: <input type="text" name="username"><br>
+			I'm a &nbsp;&nbsp;&nbsp;
+			<select name='someSelect'>
+				<option value="Barbarian">Barbarian</option>
+				<option value="Destroyer">Destroyer</option>
+				<option value="Meek">Meek</option>
+				<option value="Balanced">Balanced</option>
+			</select><br> <br>
+			<input type="button" value="Submit" onClick='checkName();'>
+		</form>
+		</div>
+	</body>
+</html>

@@ -1,14 +1,36 @@
 var canvas;
 var context;
-var HEIGHT=600, WIDTH=900;
+var HEIGHT=600, WIDTH=1200;
 var dx=60,dy=30;
 var x=200,y=60;
 var runAnimation=true;
+var bbby=100;
+var bbbx=WIDTH/2-50;
+var flag=1;
 var name=document.cookie.split('=')[1].toUpperCase();
+
+
 window.addEventListener('keydown',performKeyDownEvent,true);
+
+function getBBBX(){
+	return bbbx;
+}
+
+function getBBBY(){
+	if (bbby==HEIGHT-200)
+		flag=-1;
+	else if (bbby<0)
+		flag=1;
+	if (flag==1)
+		bbby+=20;
+	else
+		bbby-=20;
+	return bbby;
+}
 
 function startView(){
 	if(document.cookie.split('=')[1]){
+		name=document.cookie.split(';')[0].split('=')[1];
 		canvas=document.getElementById("myCanvas");
 		context=canvas.getContext('2d');
 		draw();
@@ -23,17 +45,25 @@ function draw() {
 		context.beginPath();
 		context.clearRect(0, 0, WIDTH, HEIGHT);
 		
-		// draw random blocks
-		context.arc(WIDTH/2 - 60, HEIGHT/2-90, 50,0,2*Math.PI);
-		context.closePath();
-		context.beginPath();
-		context.arc(WIDTH/2 - 60, HEIGHT/2, 50,0,2*Math.PI);
-		context.fillStyle = '#00FFFF';
-		context.fill();
-		context.lineWidth = 7;
+		// draw BBB block
+		context.fillStyle = 'red';
+		context.font="20px Serif bold";
+		context.fillText('Burning Box', getBBBX()+15, getBBBY()+90);
+
+		context.rect(getBBBX(), getBBBY(), 130,220);
+		
+		
 		context.strokeStyle = 'black';
 		context.stroke();
 		context.closePath();
+		// context.beginPath();
+// 		context.arc(WIDTH/2 - 60, HEIGHT/2, 50,0,2*Math.PI);
+// 		context.fillStyle = '#00FFFF';
+// 		context.fill();
+// 		context.lineWidth = 7;
+// 		context.strokeStyle = 'black';
+// 		context.stroke();
+// 		context.closePath();
 		// Draw players
 		drawEach('blue'); // for _self_
 		//drawOthers(); 

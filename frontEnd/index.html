@@ -8,7 +8,49 @@
 		<meta name="author" content="">
 		<title>The web game</title>
 		<script type='text/javascript' href='./js/cookie.js'></script>
-		
+		<style type="text/css">
+			.myButton {
+				-moz-box-shadow: 3px 4px 0px 0px #8a2a21;
+				-webkit-box-shadow: 3px 4px 0px 0px #8a2a21;
+				box-shadow: 3px 4px 0px 0px #8a2a21;
+				background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #c62d1f), color-stop(1, #f24437));
+				background:-moz-linear-gradient(top, #c62d1f 5%, #f24437 100%);
+				background:-webkit-linear-gradient(top, #c62d1f 5%, #f24437 100%);
+				background:-o-linear-gradient(top, #c62d1f 5%, #f24437 100%);
+				background:-ms-linear-gradient(top, #c62d1f 5%, #f24437 100%);
+				background:linear-gradient(to bottom, #c62d1f 5%, #f24437 100%);
+				filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#c62d1f', endColorstr='#f24437',GradientType=0);
+				background-color:#c62d1f;
+				-moz-border-radius:18px;
+				-webkit-border-radius:18px;
+				border-radius:18px;
+				border:1px solid #d02718;
+				display:inline-block;
+				cursor:pointer;
+				color:#ffffff;
+				font-family:arial;
+				font-size:17px;
+				padding:7px 25px;
+				text-decoration:none;
+				text-shadow:0px 1px 0px #810e05;
+				position: relative;
+    			left: 40%;
+			}
+			.myButton:hover {
+				background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f24437), color-stop(1, #c62d1f));
+				background:-moz-linear-gradient(top, #f24437 5%, #c62d1f 100%);
+				background:-webkit-linear-gradient(top, #f24437 5%, #c62d1f 100%);
+				background:-o-linear-gradient(top, #f24437 5%, #c62d1f 100%);
+				background:-ms-linear-gradient(top, #f24437 5%, #c62d1f 100%);
+				background:linear-gradient(to bottom, #f24437 5%, #c62d1f 100%);
+				filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f24437', endColorstr='#c62d1f',GradientType=0);
+				background-color:#f24437;
+			}
+			.myButton:active {
+				position:relative;
+				top:1px;
+			}
+		</style>
 		<script>
 			function checkName() 
 			{
@@ -23,7 +65,10 @@
 					var character = e.options[e.selectedIndex].value;
 					document.cookie='username=' + document.someForm.username.value+';' 
 					document.cookie= 'race='+race + ';'; // path=/';
-					window.location.href='./game.html';
+					var content='username=' + document.someForm.username.value+'&gender='+gender+'&race='+race+'&class='+class+'&profession='+professions;
+					// xmlhttp.open("GET","demo_get2.asp?name=Henry&lname=Ford",true);
+// 					xmlhttp.send();
+					window.location.href='./disclaimer.html';
 				}
 			}
 			
@@ -40,15 +85,19 @@
 		<h1>The Web Game</h1>
 		<div>
 		<form name='someForm' method='get'>
-			Name: <input type="text" name="username"><br>
+			Name: <input type="text" name="username" maxlength='14'> (14 characters)<br><br>
 			I'm a &nbsp;&nbsp;&nbsp;
+			<select id='gender' name='gender'>
+				<option value="Female">Female</option>
+				<option value="Male">Male</option>
+			</select>&nbsp;&nbsp;
 			<select id='race' name='race'>
 				<option value="Elf">Elf</option>
 				<option value="Orc">Orc</option>
 				<option value="Gnome">Gnome</option>
 				<option value="Human">Human</option>
-			</select><br> <br>
-			I'm an <select id='class' name='class'>
+			</select>&nbsp;&nbsp;
+			and an <select id='class' name='class'>
 				<option value="Archer">Archer</option>
 				<option value="Barbarian">Barbarian</option>
 				<option value="Sorcerer">Sorcerer</option>
@@ -59,11 +108,11 @@
 			<input type="checkbox" name="profession" value="Investment Banker">Investment Banker
 			<input type="checkbox" name="profession" value="Celebrity Chef">Celebrity Chef
 			<input type="checkbox" name="profession" value="Secret Agent">Secret Agent
-			<input type="checkbox" name="profession" value="Super Spy">Supermodel			
+			<input type="checkbox" name="profession" value="Supermodel" checked>Supermodel			
 			<br> <br>
 			
 			<div id='icons'></div>
-			<input type="button" value="Submit" onClick='checkName();'>
+			<br><br><input type="button" class='myButton' value="Show me the rules of the game, please!" onClick='checkName();'>
 		</form>
 		</div>
 	</body>

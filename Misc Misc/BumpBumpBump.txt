@@ -1,0 +1,197 @@
+DROP TABLE gropes;
+DROP TABLE players;
+DROP TABLE jobs;
+    
+CREATE TABLE players
+(
+  ip inet NOT NULL,
+  name character(20),
+  sex character(10),
+  race character(20),
+  class character(20),
+  location_x integer,
+  location_y integer,
+  burns integer DEFAULT 0,
+  CONSTRAINT ip PRIMARY KEY (ip)
+);
+
+CREATE TABLE jobs
+(
+  idx integer NOT NULL,
+  job character(20),
+  CONSTRAINT idx PRIMARY KEY (idx)
+);
+
+INSERT INTO jobs VALUES (1, 'Data Analyst');
+INSERT INTO jobs VALUES (2, 'Investment Banker');
+INSERT INTO jobs VALUES (3, 'Celebrity Chef');
+INSERT INTO jobs VALUES (4, 'Swimsuit Model');
+INSERT INTO jobs VALUES (5, 'Personal Trainer');
+INSERT INTO jobs VALUES (6, 'Political Agitator');
+
+CREATE TABLE gropes
+(
+  groper inet NOT NULL,
+  gropee inet NOT NULL,
+  count integer,
+  CONSTRAINT groper_gropee PRIMARY KEY (groper, gropee),
+  CONSTRAINT gropee FOREIGN KEY (gropee)
+      REFERENCES players (ip) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT groper FOREIGN KEY (groper)
+      REFERENCES players (ip) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+INSERT INTO players
+    VALUES ('127.0.0.1',
+    'Big Bodhi',
+    'Male',
+    'Otter',
+    'Chef',
+    '0', '0',
+    0);
+
+INSERT INTO players
+    VALUES ('10.0.0.1',
+    'Chia Zhong Da, Zen',
+    'Male',
+    'Platypus',
+    'XMM Herder',
+    '8', '2',
+    3);
+
+INSERT INTO players
+    VALUES ('10.0.0.101',
+    'XMM1',
+    'Female',
+    'Beetle',
+    'XMM',
+    '3', '3',
+    1);
+
+INSERT INTO players
+    VALUES ('10.0.0.102',
+    'XMM2',
+    'Female',
+    'Frog',
+    'XMM',
+    '3', '4',
+    0);
+
+INSERT INTO players
+    VALUES ('10.0.0.103',
+    'XMM3',
+    'Female',
+    'Orc',
+    'XMM',
+    '5', '3',
+    7);
+
+INSERT INTO gropes VALUES ('127.0.0.1', '10.0.0.1', 2);
+INSERT INTO gropes VALUES ('10.0.0.1', '127.0.0.1', 3);
+INSERT INTO gropes VALUES ('10.0.0.101', '127.0.0.1', 4);
+INSERT INTO gropes VALUES ('10.0.0.102', '127.0.0.1', 2);
+INSERT INTO gropes VALUES ('10.0.0.103', '127.0.0.1', 3);
+
+SELECT * from players;
+SELECT * from jobs;
+SELECT * from gropes;
+
+
+-- Top Grope Pairs
+SELECT players1.name AS "Groper", players2.name AS "Gropee", gropes.count AS "# Gropes"
+    FROM gropes
+    INNER JOIN players AS players1 ON (gropes.groper = players1.ip)
+    INNER JOIN players AS players2 ON (gropes.gropee = players2.ip)
+    ORDER BY "# Gropes" DESC
+    LIMIT 10
+;
+    
+
+-- Top Gropers
+SELECT players.name AS Groper, top_gropers.grope_count AS "Grope Count"
+    FROM players
+    INNER JOIN (SELECT gropes.groper AS groper_ip, SUM(gropes.count) AS grope_count
+            FROM gropes
+            GROUP BY gropes.groper
+            ORDER BY grope_count DESC
+            LIMIT 5) top_gropers
+        ON (top_gropers.groper_ip = players.ip)
+    ORDER BY top_gropers.grope_count DESC
+    ;
+
+
+-- Top Gropees
+SELECT players.name AS Gropee, top_gropees.grope_count AS "Grope Count"
+    FROM players
+    INNER JOIN (SELECT gropes.gropee AS gropee_ip, SUM(gropes.count) AS grope_count
+            FROM gropes
+            GROUP BY gropes.gropee
+            ORDER BY grope_count DESC
+            LIMIT 5) top_gropees
+        ON (top_gropees.gropee_ip = players.ip)
+    ORDER BY top_gropees.grope_count DESC
+    ;
+
+
+-- Polite Society
+SELECT players.name AS Groper, top_gropers.grope_count AS "Grope Count"
+    FROM players
+    INNER JOIN (SELECT gropes.groper AS groper_ip, SUM(gropes.count) AS grope_count
+            FROM gropes
+            GROUP BY gropes.groper
+            ORDER BY grope_count
+            LIMIT 5) top_gropers
+        ON (top_gropers.groper_ip = players.ip)
+    ORDER BY top_gropers.grope_count 
+    ;
+
+
+-- Sexual Predator Awareness Role Models
+SELECT players.name AS Gropee, top_gropees.grope_count AS "Grope Count"
+    FROM players
+    INNER JOIN (SELECT gropes.gropee AS gropee_ip, SUM(gropes.count) AS grope_count
+            FROM gropes
+            GROUP BY gropes.gropee
+            ORDER BY grope_count
+            LIMIT 5) top_gropees
+        ON (top_gropees.gropee_ip = players.ip)
+    ORDER BY top_gropees.grope_count 
+    ;
+
+
+-- Sexual Predator Awareness Role Models
+SELECT players.name AS Gropee, top_gropees.grope_count AS "Grope Count"
+    FROM players
+    INNER JOIN (SELECT gropes.gropee AS gropee_ip, SUM(gropes.count) AS grope_count
+            FROM gropes
+            GROUP BY gropes.gropee
+            ORDER BY grope_count
+            LIMIT 5) top_gropees
+        ON (top_gropees.gropee_ip = players.ip)
+    ORDER BY top_gropees.grope_count 
+    ;
+
+
+-- Star Crossed Pairs (Male Gropers)
+SELECT players1.name as groper_name, players2.name as gropee_name
+    FROM players AS players1
+    JOIN players AS players2 ON (players1.ip != players2.ip AND players1.sex != players2.sex)
+        LEFT JOIN gropes ON (players1.ip = gropes.groper AND players2.ip = gropes.gropee)
+    WHERE players1.sex = 'Male' AND COALESCE(gropes.count,0) = 0
+    ORDER BY groper_name, gropee_name;
+
+
+-- Star Crossed Pairs (Female Gropers)
+SELECT players1.name as groper_name, players2.name as gropee_name
+    FROM players AS players1
+    JOIN players AS players2 ON (players1.ip != players2.ip AND players1.sex != players2.sex)
+        LEFT JOIN gropes ON (players1.ip = gropes.groper AND players2.ip = gropes.gropee)
+    WHERE players1.sex = 'Female' AND COALESCE(gropes.count,0) = 0
+    ORDER BY groper_name, gropee_name;
+
+
+-- Average/Max/Min Gropes by Sex
+-- Average/Max/Min Gropes by Race
+-- Average/Max/Min Gropes by Class

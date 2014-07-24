@@ -8,7 +8,49 @@
 		<meta name="author" content="">
 		<title>The web game</title>
 		<script type='text/javascript' href='./js/cookie.js'></script>
-		
+		<style type="text/css">
+			.myButton {
+				-moz-box-shadow: 3px 4px 0px 0px #8a2a21;
+				-webkit-box-shadow: 3px 4px 0px 0px #8a2a21;
+				box-shadow: 3px 4px 0px 0px #8a2a21;
+				background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #c62d1f), color-stop(1, #f24437));
+				background:-moz-linear-gradient(top, #c62d1f 5%, #f24437 100%);
+				background:-webkit-linear-gradient(top, #c62d1f 5%, #f24437 100%);
+				background:-o-linear-gradient(top, #c62d1f 5%, #f24437 100%);
+				background:-ms-linear-gradient(top, #c62d1f 5%, #f24437 100%);
+				background:linear-gradient(to bottom, #c62d1f 5%, #f24437 100%);
+				filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#c62d1f', endColorstr='#f24437',GradientType=0);
+				background-color:#c62d1f;
+				-moz-border-radius:18px;
+				-webkit-border-radius:18px;
+				border-radius:18px;
+				border:1px solid #d02718;
+				display:inline-block;
+				cursor:pointer;
+				color:#ffffff;
+				font-family:arial;
+				font-size:17px;
+				padding:7px 25px;
+				text-decoration:none;
+				text-shadow:0px 1px 0px #810e05;
+				position: relative;
+    			left: 40%;
+			}
+			.myButton:hover {
+				background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f24437), color-stop(1, #c62d1f));
+				background:-moz-linear-gradient(top, #f24437 5%, #c62d1f 100%);
+				background:-webkit-linear-gradient(top, #f24437 5%, #c62d1f 100%);
+				background:-o-linear-gradient(top, #f24437 5%, #c62d1f 100%);
+				background:-ms-linear-gradient(top, #f24437 5%, #c62d1f 100%);
+				background:linear-gradient(to bottom, #f24437 5%, #c62d1f 100%);
+				filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f24437', endColorstr='#c62d1f',GradientType=0);
+				background-color:#f24437;
+			}
+			.myButton:active {
+				position:relative;
+				top:1px;
+			}
+		</style>
 		<script>
 			function checkName() 
 			{
@@ -19,31 +61,58 @@
 				}
 				else
 				{
-					var e = document.getElementById("character");
+					var e = document.getElementById("race");
 					var character = e.options[e.selectedIndex].value;
 					document.cookie='username=' + document.someForm.username.value+';' 
-					document.cookie= 'character='+character + ';'; // path=/';
-					// createCookie('user',document.someForm.username.value,1);
-// 					createCookie('character',character,1);
-					window.location.href='./game.html';
+					document.cookie= 'race='+race + ';'; // path=/';
+					var content='username=' + document.someForm.username.value+'&gender='+gender+'&race='+race+'&class='+class+'&profession='+professions;
+					// xmlhttp.open("GET","demo_get2.asp?name=Henry&lname=Ford",true);
+// 					xmlhttp.send();
+					window.location.href='./disclaimer.html';
 				}
+			}
+			
+			function loadIcons(){
+				var e=document.getElementById('icons');
+				var urlString='./icons/';
+				var names=['Animal_Icons_alligator.png', 'Animal_Icons_ant.png', 'Animal_Icons_bat.png', 'Animal_Icons_bear.png', 'Animal_Icons_bee.png', 'Animal_Icons_bird.png', 'Animal_Icons_bull.png', 'Animal_Icons_bulldog.png', 'Animal_Icons_butterfly.png', 'Animal_Icons_cat.png', 'Animal_Icons_chicken.png', 'Animal_Icons_cow.png', 'Animal_Icons_crab.png', 'Animal_Icons_crocodile.png', 'Animal_Icons_deer.png', 'Animal_Icons_dog.png', 'Animal_Icons_donkey.png', 'Animal_Icons_duck.png', 'Animal_Icons_eagle.png', 'Animal_Icons_elephant.png', 'Animal_Icons_fish.png', 'Animal_Icons_fox.png', 'Animal_Icons_frog.png', 'Animal_Icons_giraffe.png', 'Animal_Icons_gorilla.png', 'Animal_Icons_hippo.png', 'Animal_Icons_horse.png', 'Animal_Icons_insect.png', 'Animal_Icons_lion.png', 'Animal_Icons_monkey.png', 'Animal_Icons_moose.png', 'Animal_Icons_mouse.png', 'Animal_Icons_owl.png', 'Animal_Icons_panda.png', 'Animal_Icons_penguin.png', 'Animal_Icons_pig.png', 'Animal_Icons_rabbit.png', 'Animal_Icons_rhino.png', 'Animal_Icons_rooster.png', 'Animal_Icons_shark.png', 'Animal_Icons_sheep.png', 'Animal_Icons_snake.png', 'Animal_Icons_tiger.png', 'Animal_Icons_turkey.png', 'Animal_Icons_turtle.png', 'Animal_Icons_wolf.png'];
+				
 			}
 		</script>
 	</head>
 
-	<body>
+	<body onload='loadIcons();'>
 		<h1>The Web Game</h1>
 		<div>
 		<form name='someForm' method='get'>
-			Name: <input type="text" name="username"><br>
+			Name: <input type="text" name="username" maxlength='14'> (14 characters)<br><br>
 			I'm a &nbsp;&nbsp;&nbsp;
-			<select id='character' name='character'>
+			<select id='gender' name='gender'>
+				<option value="Female">Female</option>
+				<option value="Male">Male</option>
+			</select>&nbsp;&nbsp;
+			<select id='race' name='race'>
 				<option value="Elf">Elf</option>
 				<option value="Orc">Orc</option>
 				<option value="Gnome">Gnome</option>
+				<option value="Human">Human</option>
+			</select>&nbsp;&nbsp;
+			and an <select id='class' name='class'>
+				<option value="Archer">Archer</option>
+				<option value="Barbarian">Barbarian</option>
 				<option value="Sorcerer">Sorcerer</option>
-			</select><br> <br>
-			<input type="button" value="Submit" onClick='checkName();'>
+				<option value="Bard">Bard</option>
+			</select> by profession.<br> <br>
+			Jobs I would consider: 
+			<input type="checkbox" name="profession" value="Data Analyst">Data Analyst
+			<input type="checkbox" name="profession" value="Investment Banker">Investment Banker
+			<input type="checkbox" name="profession" value="Celebrity Chef">Celebrity Chef
+			<input type="checkbox" name="profession" value="Secret Agent">Secret Agent
+			<input type="checkbox" name="profession" value="Supermodel" checked>Supermodel			
+			<br> <br>
+			
+			<div id='icons'></div>
+			<br><br><input type="button" class='myButton' value="Show me the rules of the game, please!" onClick='checkName();'>
 		</form>
 		</div>
 	</body>

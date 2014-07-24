@@ -23,32 +23,32 @@ function eraseCookie(name) {
 	createCookie(name,"",-1);
 }
 
-function pharseToArrayOfArraysPipeComma(_arrText) {
-	if (_arrText) {
-		var parts = _arrText.split(/\|/g);
-	} else {
-		return null;
-	}
-
-	var retArr = [];
-	
-	for (var i = 0; i < parts.length; i++) {
-		retArr[i] = parts[i].split(/\,/g);
-	}
-	return retArr;
-}
-
-function pharseToArrayOfArraysPipeHash(_arrText) {
-	if (_arrText) {
-		var parts = _arrText.split(/\|/g);
-	} else {
-		return null;
-	}
-
-	var retArr = [];
-	
-	for (var i = 0; i < parts.length; i++) {
-		retArr[i] = parts[i].split(/#/g);
-	}
-	return retArr;
-}
+// function pharseToArrayOfArraysPipeComma(_arrText) {
+// 	if (_arrText) {
+// 		var parts = _arrText.split(/\|/g);
+// 	} else {
+// 		return null;
+// 	}
+// 
+// 	var retArr = [];
+// 	
+// 	for (var i = 0; i < parts.length; i++) {
+// 		retArr[i] = parts[i].split(/\,/g);
+// 	}
+// 	return retArr;
+// }
+// 
+// function pharseToArrayOfArraysPipeHash(_arrText) {
+// 	if (_arrText) {
+// 		var parts = _arrText.split(/\|/g);
+// 	} else {
+// 		return null;
+// 	}
+// 
+// 	var retArr = [];
+// 	
+// 	for (var i = 0; i < parts.length; i++) {
+// 		retArr[i] = parts[i].split(/#/g);
+// 	}
+// 	return retArr;
+// }

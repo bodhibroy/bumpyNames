@@ -7,6 +7,7 @@
 		<meta name="description" content="">
 		<meta name="author" content="">
 		<title>The web game</title>
+		<script type='text/javascript' href='./js/cookie.js'></script>
 		
 		<script>
 			function checkName() 
@@ -18,12 +19,16 @@
 				}
 				else
 				{
-					document.cookie='username='+document.someForm.username.value+';'//+ 'expires=Thu, 18 Dec 2013 12:00:00 GMT; path=/';
+					var e = document.getElementById("character");
+					var character = e.options[e.selectedIndex].value;
+					document.cookie='username=' + document.someForm.username.value+';' 
+					document.cookie= 'character='+character + ';'; // path=/';
+					// createCookie('user',document.someForm.username.value,1);
+// 					createCookie('character',character,1);
 					window.location.href='./game.html';
 				}
 			}
 		</script>
-		
 	</head>
 
 	<body>
@@ -32,7 +37,7 @@
 		<form name='someForm' method='get'>
 			Name: <input type="text" name="username"><br>
 			I'm a &nbsp;&nbsp;&nbsp;
-			<select name='someSelect'>
+			<select id='character' name='character'>
 				<option value="Elf">Elf</option>
 				<option value="Orc">Orc</option>
 				<option value="Gnome">Gnome</option>

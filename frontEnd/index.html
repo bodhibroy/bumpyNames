@@ -19,30 +19,50 @@
 				}
 				else
 				{
-					var e = document.getElementById("character");
+					var e = document.getElementById("race");
 					var character = e.options[e.selectedIndex].value;
 					document.cookie='username=' + document.someForm.username.value+';' 
-					document.cookie= 'character='+character + ';'; // path=/';
-					// createCookie('user',document.someForm.username.value,1);
-// 					createCookie('character',character,1);
+					document.cookie= 'race='+race + ';'; // path=/';
 					window.location.href='./game.html';
 				}
+			}
+			
+			function loadIcons(){
+				var e=document.getElementById('icons');
+				var urlString='./icons/';
+				var names=['Animal_Icons_alligator.png', 'Animal_Icons_ant.png', 'Animal_Icons_bat.png', 'Animal_Icons_bear.png', 'Animal_Icons_bee.png', 'Animal_Icons_bird.png', 'Animal_Icons_bull.png', 'Animal_Icons_bulldog.png', 'Animal_Icons_butterfly.png', 'Animal_Icons_cat.png', 'Animal_Icons_chicken.png', 'Animal_Icons_cow.png', 'Animal_Icons_crab.png', 'Animal_Icons_crocodile.png', 'Animal_Icons_deer.png', 'Animal_Icons_dog.png', 'Animal_Icons_donkey.png', 'Animal_Icons_duck.png', 'Animal_Icons_eagle.png', 'Animal_Icons_elephant.png', 'Animal_Icons_fish.png', 'Animal_Icons_fox.png', 'Animal_Icons_frog.png', 'Animal_Icons_giraffe.png', 'Animal_Icons_gorilla.png', 'Animal_Icons_hippo.png', 'Animal_Icons_horse.png', 'Animal_Icons_insect.png', 'Animal_Icons_lion.png', 'Animal_Icons_monkey.png', 'Animal_Icons_moose.png', 'Animal_Icons_mouse.png', 'Animal_Icons_owl.png', 'Animal_Icons_panda.png', 'Animal_Icons_penguin.png', 'Animal_Icons_pig.png', 'Animal_Icons_rabbit.png', 'Animal_Icons_rhino.png', 'Animal_Icons_rooster.png', 'Animal_Icons_shark.png', 'Animal_Icons_sheep.png', 'Animal_Icons_snake.png', 'Animal_Icons_tiger.png', 'Animal_Icons_turkey.png', 'Animal_Icons_turtle.png', 'Animal_Icons_wolf.png'];
+				
 			}
 		</script>
 	</head>
 
-	<body>
+	<body onload='loadIcons();'>
 		<h1>The Web Game</h1>
 		<div>
 		<form name='someForm' method='get'>
 			Name: <input type="text" name="username"><br>
 			I'm a &nbsp;&nbsp;&nbsp;
-			<select id='character' name='character'>
+			<select id='race' name='race'>
 				<option value="Elf">Elf</option>
 				<option value="Orc">Orc</option>
 				<option value="Gnome">Gnome</option>
-				<option value="Sorcerer">Sorcerer</option>
+				<option value="Human">Human</option>
 			</select><br> <br>
+			I'm an <select id='class' name='class'>
+				<option value="Archer">Archer</option>
+				<option value="Barbarian">Barbarian</option>
+				<option value="Sorcerer">Sorcerer</option>
+				<option value="Bard">Bard</option>
+			</select> by profession.<br> <br>
+			Jobs I would consider: 
+			<input type="checkbox" name="profession" value="Data Analyst">Data Analyst
+			<input type="checkbox" name="profession" value="Investment Banker">Investment Banker
+			<input type="checkbox" name="profession" value="Celebrity Chef">Celebrity Chef
+			<input type="checkbox" name="profession" value="Secret Agent">Secret Agent
+			<input type="checkbox" name="profession" value="Super Spy">Supermodel			
+			<br> <br>
+			
+			<div id='icons'></div>
 			<input type="button" value="Submit" onClick='checkName();'>
 		</form>
 		</div>

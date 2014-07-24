@@ -1,16 +1,5 @@
-
-DROP VIEW least_gropey_grope_counts CASCADE;
-DROP VIEW least_groped_grope_counts CASCADE;
-DROP VIEW top_groper_grope_counts CASCADE;
-DROP VIEW top_gropee_grope_counts CASCADE;
-DROP VIEW groper_grope_counts CASCADE;
-DROP VIEW gropee_grope_counts CASCADE;
-DROP VIEW groper_grope_counts_ CASCADE;
-DROP VIEW gropee_grope_counts_ CASCADE;
-
-DROP TABLE gropes;
-DROP TABLE players;
-DROP TABLE jobs;
+DROP TABLE IF EXISTS players CASCADE;
+DROP TABLE IF EXISTS gropes CASCADE;
     
 CREATE TABLE players
 (
@@ -40,6 +29,7 @@ CREATE TABLE gropes
       ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
+
 INSERT INTO players
     VALUES ('127.0.0.1',
     'Big Bodhi',
@@ -62,7 +52,7 @@ INSERT INTO players
     VALUES ('10.0.0.101',
     'XMM1',
     'Female',
-    'Beetle',
+    'Orc',
     'XMM',
     '3', '3',
     1);
@@ -91,10 +81,10 @@ INSERT INTO gropes VALUES ('10.0.0.101', '127.0.0.1', 4);
 INSERT INTO gropes VALUES ('10.0.0.101', '10.0.0.103', 1);
 INSERT INTO gropes VALUES ('10.0.0.102', '127.0.0.1', 2);
 INSERT INTO gropes VALUES ('10.0.0.103', '127.0.0.1', 3);
+INSERT INTO gropes VALUES ('10.0.0.103', '10.0.0.101', 1);
 INSERT INTO gropes VALUES ('10.0.0.1', '10.0.0.102', 2);
 
 SELECT * from players;
-SELECT * from jobs;
 SELECT * from gropes;
 
 
@@ -117,7 +107,7 @@ CREATE OR REPLACE VIEW groper_grope_counts AS
         FROM groper_grope_counts_ AS gropes_base
         INNER JOIN players ON (gropes_base.groper_ip = players.ip);
 
-SELECT * FROM groper_grope_counts;
+-- SELECT * FROM groper_grope_counts;
 
 
 CREATE OR REPLACE VIEW gropee_grope_counts AS
@@ -125,7 +115,7 @@ CREATE OR REPLACE VIEW gropee_grope_counts AS
         FROM gropee_grope_counts_ AS gropes_base
         INNER JOIN players ON (gropes_base.gropee_ip = players.ip);
         
-SELECT * FROM gropee_grope_counts;
+-- SELECT * FROM gropee_grope_counts;
 
 
 CREATE OR REPLACE VIEW top_groper_grope_counts AS
@@ -152,15 +142,34 @@ CREATE OR REPLACE VIEW least_groped_grope_counts AS
         LIMIT 10;
         
 
+CREATE OR REPLACE VIEW grope_pairs AS
+    SELECT players1.name AS groper, players2.name AS gropee, gropes.count AS grope_count
+        FROM gropes
+        INNER JOIN players AS players1 ON (gropes.groper = players1.ip)
+        INNER JOIN players AS players2 ON (gropes.gropee = players2.ip);
+        
+
 -- Top Grope Pairs
-SELECT players1.name AS "Groper", players2.name AS "Gropee", gropes.count AS "# Gropes"
-    FROM gropes
-    INNER JOIN players AS players1 ON (gropes.groper = players1.ip)
-    INNER JOIN players AS players2 ON (gropes.gropee = players2.ip)
-    ORDER BY "# Gropes" DESC
-    LIMIT 10
+SELECT * FROM grope_pairs ORDER BY grope_count DESC LIMIT 10;
+
+
+-- Top Grope Buddies
+SELECT
+        CASE WHEN gp1.groper < gp1.gropee THEN gp1.groper
+            ELSE gp1.gropee
+        END AS person_one,
+        CASE WHEN gp1.groper < gp1.gropee THEN gp1.gropee
+            ELSE gp1.groper
+        END AS person_two,
+        (COALESCE(gp1.grope_count,0)+COALESCE(gp2.grope_count,0)) AS gropes_exchanged,
+        ABS(COALESCE(gp1.grope_count,0)-COALESCE(gp2.grope_count,0)) / (0.0 + COALESCE(gp1.grope_count,0)+COALESCE(gp2.grope_count,0)) AS asymmetry
+    FROM grope_pairs AS gp1
+    LEFT JOIN grope_pairs AS gp2
+        ON (gp1.groper = gp2.gropee AND gp2.groper = gp1.gropee)
+    WHERE (gp2.groper IS NULL OR gp1.groper < gp1.gropee)
+    ORDER BY person_one, person_two
 ;
-    
+
 
 -- Top Gropers
 SELECT * FROM top_groper_grope_counts;
@@ -197,31 +206,31 @@ SELECT players1.name as groper_name, players2.name as gropee_name
 
 
 -- Average/Max/Min Groper Gropes by Sex
-SELECT sex, COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+SELECT sex, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
     FROM groper_grope_counts GROUP BY sex ORDER BY sex;
 
 
 -- Average/Max/Min Groper Gropes by Race
-SELECT race, COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+SELECT race, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
     FROM groper_grope_counts GROUP BY race ORDER BY race;
 
 
 -- Average/Max/Min Groper Gropes by Class
-SELECT class, COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+SELECT class, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
     FROM groper_grope_counts GROUP BY class ORDER BY class;
 
 
 -- Average/Max/Min Gropee Gropes by Sex
-SELECT sex, COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+SELECT sex, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
     FROM gropee_grope_counts GROUP BY sex ORDER BY sex;
 
 
 -- Average/Max/Min Gropee Gropes by Race
-SELECT race, COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+SELECT race, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
     FROM gropee_grope_counts GROUP BY race ORDER BY race;
 
 
 -- Average/Max/Min Gropee Gropes by Class
-SELECT class, COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+SELECT class, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
     FROM gropee_grope_counts GROUP BY class ORDER BY class;
 

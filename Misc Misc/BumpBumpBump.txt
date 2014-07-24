@@ -168,6 +168,7 @@ SELECT
         ON (gp1.groper = gp2.gropee AND gp2.groper = gp1.gropee)
     WHERE (gp2.groper IS NULL OR gp1.groper < gp1.gropee)
     ORDER BY person_one, person_two
+    LIMIT 5
 ;
 
 

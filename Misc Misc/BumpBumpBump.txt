@@ -138,7 +138,7 @@ CREATE OR REPLACE VIEW least_gropey_grope_counts AS
 
 CREATE OR REPLACE VIEW least_groped_grope_counts AS
     SELECT * FROM gropee_grope_counts
-        ORDER BY grope_count DESC
+        ORDER BY grope_count
         LIMIT 10;
         
 
@@ -167,8 +167,8 @@ SELECT
     LEFT JOIN grope_pairs AS gp2
         ON (gp1.groper = gp2.gropee AND gp2.groper = gp1.gropee)
     WHERE (gp2.groper IS NULL OR gp1.groper < gp1.gropee)
-    ORDER BY person_one, person_two
-    LIMIT 5
+    ORDER BY gropes_exchanged DESC, person_one, person_two
+    LIMIT 10
 ;
 
 

@@ -2,6 +2,8 @@ import psycopg2
 import random
 import sys
 
+from game import game_messages
+
 def db_connection():
 	return psycopg2.connect(host='localhost', port=5432, database='BumpyMaps', user='BumpyMaps', password='BumpBumpBump') 
 
@@ -11,6 +13,8 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
     
     cursor.execute("DROP TABLE IF EXISTS players CASCADE;")
     cursor.execute("DROP TABLE IF EXISTS gropes CASCADE;")
+    cursor.execute("DROP TABLE IF EXISTS messages CASCADE;")
+    cursor.execute("DROP TABLE IF EXISTS game_state CASCADE;")
     
     cursor.execute("""
         CREATE TABLE players
@@ -20,10 +24,11 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
           icon varchar(255),
           sex varchar(10),
           race varchar(20),
-          class varchar(20),
+          class varchar(30),
           location_x integer,
           location_y integer,
           burns integer DEFAULT 0,
+          moves integer DEFAULT 0,
           CONSTRAINT ip PRIMARY KEY (ip)
         );
         """.format(top_gg_limit, top_avoider_limit))
@@ -44,6 +49,32 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
         );
         """.format(top_gg_limit, top_avoider_limit))
 
+    cursor.execute("""
+        CREATE TABLE messages
+        (
+          ip inet NOT NULL,
+          message integer,
+          intval1 integer,
+          intval2 integer,
+          intval3 integer,
+          intval4 integer,
+          strval varchar(50),
+          CONSTRAINT ip FOREIGN KEY (ip)
+              REFERENCES players (ip) MATCH SIMPLE
+              ON UPDATE NO ACTION ON DELETE NO ACTION
+        );
+        """.format(top_gg_limit, top_avoider_limit))
+   
+    cursor.execute("""
+        CREATE TABLE game_state
+        (
+          property varchar(50),
+          str_val varchar(50),
+          int_val integer,
+          dec_val decimal
+        );
+        """.format(top_gg_limit, top_avoider_limit))
+    
     cursor.execute("""
         CREATE OR REPLACE VIEW groper_grope_counts_ AS
             SELECT gropes.groper AS groper_ip, SUM(gropes.count) AS grope_count
@@ -133,7 +164,7 @@ def db_seed(num_rnd = 10, p_g = 0.25, p_gv1 = 0.2, p_gv2 = 0.35):
         return L[random.randint(0,len(L)-1)]
     
     def rnd_class():
-        L = ['Bitcoin Miner', 'Python Charmer', 'DATA SCIENTIST', 'Elephant Wrangler', 'XMM']
+        L = ['Bee Keeper', 'Snake Charmer', 'Hog Farmer', 'Baby Elephant Wrangler', 'XMM']
         return L[random.randint(0,len(L)-1)]
     
     cursor.execute("""INSERT INTO players VALUES ('10.0.0.1', 'Big Bodhi', '{0}', 'Male', 'Otter', 'Chef', '0', '0', 0);""".format(rnd_icon()))
@@ -169,6 +200,22 @@ def db_seed(num_rnd = 10, p_g = 0.25, p_gv1 = 0.2, p_gv2 = 0.35):
     conn.close()
     
 
+
+def quick_query(q):
+    conn = None
+    ret_code = 0
+    try:
+        conn = db_connection() 
+        cursor = conn.cursor()
+        cursor.execute(q)
+        conn.commit()
+    except psycopg2.DatabaseError, e:
+        ret_code = -1
+    finally:
+        if conn:
+            conn.close()
+        return ret_code
+
 def get_query_results(query, trim = False):
     conn = None
     ret = []
@@ -185,10 +232,7 @@ def get_query_results(query, trim = False):
         return {'cols': cols, data: ret}
            
     except psycopg2.DatabaseError, e:
-        if conn:
-            conn.rollback()
-        print 'Error %s' % e    
-        sys.exit(1)
+        pass
         
     finally:
         
@@ -202,7 +246,20 @@ def get_query_results(query, trim = False):
 def get_table(tbl_name, trim = False):
     return get_query_results("SELECT * FROM %s" % tbl_name, trim)
 
-def get_all_queries():
+def query_results_to_list_of_dicts(qresults):
+    if qresults is None:
+        return None
+    ret = []
+    for row in qresults['data']:
+        ret.append(dict(zip(qresults['cols'], row)))
+    return ret
+
+def get_table_listOdicts(tbl_name, trim = False):
+    return query_results_to_list_of_dicts(get_table(tbl_name, trim))
+
+
+
+def get_bumpy_queries():
 	queries = {}
 
 	queries['Top Grope Pairs'] = "SELECT * FROM grope_pairs ORDER BY grope_count DESC LIMIT 10;"
@@ -305,18 +362,18 @@ def generate_HTML_table(query_results, border = 1, table_class='class_table', th
 
     L = ["<TABLE BORDER={0} CLASS='{1}'>\n".format(border, table_class)]
     # TH
-    L.append("<TR>")
+    L.append("\t<TR>")
     for col_name in cols:
         L.append("<TH CLASS='{0}'>".format(th_class))
         L.append(str(col_name))
         L.append("</TH>")
-    L.append("</TR>\n")
+    L.append("</TR>\n\n")
     
     # TD
     row_num = 0
     for row in query_results['data']:
         row_num += 1
-        L.append("<TR CLASS='{0}'>".format(tr_odd_class if (row_num % 2 == 1) else tr_even_class))
+        L.append("\t<TR CLASS='{0}'>".format(tr_odd_class if (row_num % 2 == 1) else tr_even_class))
         col_idx = 0
         for s in row:
             L.append("<TD>")
@@ -330,80 +387,196 @@ def generate_HTML_table(query_results, border = 1, table_class='class_table', th
     return ''.join(L)
 
 
-def get_user(ip, trim = False):
-    conn = None
+def get_user(ip, cursor, trim = False):
     d = None
     try:
-        conn = db_connection() 
-        cursor = conn.cursor()
         cursor.execute("SELECT * FROM players where ip=%s", (ip,))
         cols = [cn[0] for cn in cursor.description]
         for row in cursor:
             this_row = [s.strip() if hasattr(s, 'strip') else s for s in row] if trim else row
             d = dict(zip(cols, this_row))
-            break
-
     except psycopg2.DatabaseError, e:
-        if conn:
-            conn.rollback()
-        print 'Error %s' % e    
-        sys.exit(1)
-        
-    finally:
-        
-        if conn:
-            conn.close()
-            return d
-        else:
-            return None
+        d = None
+
+    return d
 
 
-def get_user_at(x_pos, y_pos, trim = False):
-    conn = None
+def get_user_at(x_pos, y_pos, cursor, trim = False):
     d = None
     try:
-        conn = db_connection() 
-        cursor = conn.cursor()
         cursor.execute("SELECT * FROM players where location_x=%s AND location_y=%s", (x_pos, y_pos))
         cols = [cn[0] for cn in cursor.description]
         for row in cursor:
             this_row = [s.strip() if hasattr(s, 'strip') else s for s in row] if trim else row
             d = dict(zip(cols, this_row))
             break
-
     except psycopg2.DatabaseError, e:
-        if conn:
-            conn.rollback()
-        print 'Error %s' % e    
-        sys.exit(1)
+        d = None
         
-    finally:
-        
-        if conn:
-            conn.close()
-            return d
-        else:
-            return None
+    return d
 
 
-def move_user_to(ip, x_pos, y_pos):
+def move_user_to(ip, x_pos, y_pos, cursor):
+    cursor.execute("UPDATE players SET location_x=%s, location_y=%s WHERE ip=%s", (x_pos, y_pos, ip))
+    return cursor.rowcount
+
+
+# def add_message(ip, message, intval1 = 0, intval2 = 0, intval3 = 0, intval4 = 0, strval = ""):
+#     ret_code = 0
+#     conn = None
+#     try:
+#         conn = db_connection()
+#         cursor = conn.cursor()
+#         cursor.execute("INSERT INTO messages VALUES (%s,%s,%s,%s,%s,%s,%s)", (ip, message, intval1, intval2, intval3, intval4, strval))
+#         conn.commit()
+#         ret_code = cursor.rowcount
+#     except psycopg2.DatabaseError, e:
+#         if conn:
+#             conn.rollback()
+#         ret_code = -1
+#     finally:
+#         if conn:
+#             conn.close()
+#     return ret_code
+
+
+def add_message(ip, message, intval1 = 0, intval2 = 0, intval3 = 0, intval4 = 0, strval = "", cursor = None):
     conn = None
-    cursor = None
-    try:
-        conn = db_connection() 
+    connect_here = False
+    if cursor is None:
+        connect_here = True
+    if connect_here:
+        conn = db_connection()
         cursor = conn.cursor()
-        cursor.execute("UPDATE players SET location_x=%s, location_y=%s WHERE ip=%s", (x_pos, y_pos, ip))
-        conn.commit()
 
+    cursor.execute("INSERT INTO messages VALUES (%s,%s,%s,%s,%s,%s,%s)", (ip, message, intval1, intval2, intval3, intval4, strval))
+    ret_code = cursor.rowcount
+
+    if connect_here:
+        conn.commit()
+        conn.close()
+
+    return ret_code
+
+
+def pull_messages(ip):
+    results = []
+    conn = None
+    try:
+        conn = db_connection()
+        cursor = conn.cursor()
+        cursor.execute("BEGIN TRANSACTION; LOCK TABLE players IN ACCESS EXCLUSIVE MODE;")
+
+        results = query_results_to_list_of_dicts(get_query_results("SELECT * FROM messages WHERE ip=\'{0}\'".format(ip)))
+        cursor.execute("DELETE FROM messages WHERE ip=%s", (ip,))
+
+        cursor.execute("COMMIT;")
+        #conn.commit()
+           
     except psycopg2.DatabaseError, e:
         if conn:
             conn.rollback()
-        return 0
+        return []
         
     finally:
         
         if conn:
             conn.close()
-            return cursor.rowcount
-        else:
-            return 0
+        return results
+
+
+def get_move_count(ip, cursor):
+    count = 0
+    cursor.execute("SELECT moves from players WHERE ip=%s", (ip,))
+    for r in cursor:
+        count = r[0]
+    return count
+
+def get_burn_count(ip, cursor):
+    count = 0
+    cursor.execute("SELECT burns from players WHERE ip=%s", (ip,))
+    for r in cursor:
+        count = r[0]
+    return count
+
+
+def get_grope_count_insert_if_not_present(ip1, ip2, cursor):
+    cursor.execute("SELECT EXISTS (SELECT 1 from gropes WHERE groper=%s AND gropee=%s)", (ip1, ip2))
+    found = False
+    for r in cursor:
+        found = r[0]
+        
+    count = 0
+    if found:
+        cursor.execute("SELECT count from gropes WHERE groper=%s AND gropee=%s", (ip1, ip2))
+        for r in cursor:
+            count = r[0]
+    else:
+        cursor.execute("INSERT INTO gropes (groper,gropee) SELECT %s, %s WHERE NOT EXISTS (SELECT groper, gropee from gropes WHERE groper=%s AND gropee=%s)",
+                       (ip1, ip2, ip1, ip2))
+    return count
+
+def increment_grope_record(ip1, ip2, cursor):
+    current_count = get_grope_count_insert_if_not_present(ip1, ip2, cursor)
+    cursor.execute("UPDATE gropes SET count=%s WHERE groper=%s AND gropee=%s", (current_count+1, ip1, ip2))
+    return current_count+1
+
+def increment_move_record(ip, cursor):
+    current_count = get_move_count(ip, cursor)
+    cursor.execute("UPDATE players SET moves=%s WHERE ip=%s", (current_count+1, ip))
+    return current_count+1
+
+def increment_burn_record(ip, cursor):
+    current_count = get_burn_count(ip, cursor)
+    cursor.execute("UPDATE players SET burns=%s WHERE ip=%s", (current_count+1, ip))
+    return current_count+1
+
+def attempt_move_to(ip, x_move, y_move):
+    conn = None
+    d = {'user_found': False, 'free_move': False}
+    try:
+        conn = psycopg2.connect(host='localhost', port=5432, database='BumpyMaps', user='BumpyMaps', password='BumpBumpBump')
+        
+        cursor = conn.cursor()
+        cursor.execute("BEGIN TRANSACTION; LOCK TABLE players IN ACCESS EXCLUSIVE MODE;")
+        
+        this_user = get_user(ip, cursor)
+        if this_user is not None:
+            d['user_found'] = True
+
+        if d['user_found']:
+            user_at_other_location = get_user_at(this_user['location_x']+x_move, this_user['location_y']+y_move, cursor)
+            if user_at_other_location is None:
+                d['free_move'] = True
+            else:
+                d['free_move'] = False
+
+            if d['free_move']:
+                # Unemcumbered Move
+                move_user_to(ip, this_user['location_x']+x_move, this_user['location_y']+y_move, cursor)
+                increment_move_record(ip, cursor)
+                # step sound message
+                # inform of new position by message
+                add_message(ip, game_messages["moved"], cursor = cursor)
+            else:
+                # Collision
+                # grunts on both sides
+                add_message(ip, game_messages["collide"], cursor = cursor)
+                add_message(user_at_other_location['ip'], game_messages["collided into"], cursor = cursor)
+                increment_grope_record(ip, user_at_other_location['ip'], cursor)
+        
+        cursor.execute("COMMIT;")
+        get_query_results("SELECT * FROM players where ip=\'{0}\'".format(ip))
+        #conn.commit()
+           
+    except psycopg2.DatabaseError, e:
+        if conn:
+            conn.rollback()
+        d = {'user_found': False, 'free_move': False, 'msg': []}
+        
+    finally:
+        
+        if conn:
+            conn.close()
+        d['msg'] = pull_messages(ip)
+        return d

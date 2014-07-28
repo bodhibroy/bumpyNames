@@ -78,6 +78,15 @@ def game_state():
 	ret2 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM game_state"))
 	return jsonify({'players': ret1, 'game': ret2}), 200
 
+@app.route("/dump_it_all")
+def dump_it_all():
+	ret1_tabular = db_mgmt.get_query_results("SELECT * FROM players")
+	ret2_tabular = db_mgmt.get_query_results("SELECT * FROM gropes")
+	ret1_dod = db_mgmt.query_results_to_list_of_dicts(ret1_tabular)
+	ret2_dod = db_mgmt.query_results_to_list_of_dicts(ret2_tabular)
+	return jsonify({'as_list_of_dicts': {'players': ret1_dod, 'gropes': ret2_dod}, 'tabularly': {'players': ret1_tabular, 'gropes': ret2_tabular}}), 200
+	# Yeah... I could do it more generally, but why...
+
 @app.route("/show_user/<ip>")
 def show_user(ip):
 	query_results = db_mgmt.get_query_results("SELECT * FROM players WHERE ip=\'{0}\'".format(ip), True)

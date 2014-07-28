@@ -1,6 +1,7 @@
 import psycopg2
 import random
 import sys
+import string
 
 from game import game_messages
 
@@ -70,7 +71,7 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
           property varchar(50),
           str_val varchar(50),
           int_val integer,
-          dec_val decimal
+          dec_val double precision
         );
         """.format(top_gg_limit, top_avoider_limit))
     
@@ -259,97 +260,99 @@ def get_table_listOdicts(tbl_name, trim = False):
 
 
 def get_bumpy_queries():
-	queries = {}
 
-	queries['Top Grope Pairs'] = "SELECT * FROM grope_pairs ORDER BY grope_count DESC LIMIT 10;"
+    queries = []
 
-
-	queries['Top Grope Buddies'] = """
-	SELECT
-	        CASE WHEN gp1.groper < gp1.gropee THEN gp1.groper
-	            ELSE gp1.gropee
-	        END AS person_one,
-	        CASE WHEN gp1.groper < gp1.gropee THEN gp1.gropee
-	            ELSE gp1.groper
-	        END AS person_two,
-	        (COALESCE(gp1.grope_count,0)+COALESCE(gp2.grope_count,0)) AS gropes_exchanged,
-	        ABS(COALESCE(gp1.grope_count,0)-COALESCE(gp2.grope_count,0)) / (0.0 + COALESCE(gp1.grope_count,0)+COALESCE(gp2.grope_count,0)) AS asymmetry
-	    FROM grope_pairs AS gp1
-	    LEFT JOIN grope_pairs AS gp2
-	        ON (gp1.groper = gp2.gropee AND gp2.groper = gp1.gropee)
-	    WHERE (gp2.groper IS NULL OR gp1.groper < gp1.gropee)
-	    ORDER BY gropes_exchanged DESC, person_one, person_two
-	    LIMIT 10
-	;"""
+    #queries.append(('Top Grope Pairs', "SELECT * FROM grope_pairs ORDER BY grope_count DESC LIMIT 10;"))
+    queries.append(('Top Grope Pairs', "SELECT groper AS \"groper \", gropee AS \"gropee \", grope_count FROM grope_pairs ORDER BY grope_count DESC LIMIT 10;"))
 
 
-	queries['Top Gropers'] = "SELECT * FROM top_groper_grope_counts;"
+    queries.append(('Top Grope Buddies', """
+    SELECT
+            CASE WHEN gp1.groper < gp1.gropee THEN gp1.groper
+                ELSE gp1.gropee
+            END AS person_one,
+            CASE WHEN gp1.groper < gp1.gropee THEN gp1.gropee
+                ELSE gp1.groper
+            END AS person_two,
+            (COALESCE(gp1.grope_count,0)+COALESCE(gp2.grope_count,0)) AS gropes_exchanged,
+            ABS(COALESCE(gp1.grope_count,0)-COALESCE(gp2.grope_count,0)) / (0.0 + COALESCE(gp1.grope_count,0)+COALESCE(gp2.grope_count,0)) AS asymmetry
+        FROM grope_pairs AS gp1
+        LEFT JOIN grope_pairs AS gp2
+            ON (gp1.groper = gp2.gropee AND gp2.groper = gp1.gropee)
+        WHERE (gp2.groper IS NULL OR gp1.groper < gp1.gropee)
+        ORDER BY gropes_exchanged DESC, person_one, person_two
+        LIMIT 10
+    ;"""))
 
 
-	queries['Top Gropees'] = "SELECT * FROM top_gropee_grope_counts;"
+    queries.append(('Top Gropers', "SELECT * FROM top_groper_grope_counts;"))
 
 
-	queries['Polite Society'] = "SELECT * FROM least_gropey_grope_counts;"
+    queries.append(('Top Gropees', "SELECT * FROM top_gropee_grope_counts;"))
 
 
-	queries['Sexual Predator Awareness Role Models'] = "SELECT * FROM least_groped_grope_counts;"
+    queries.append(('Polite Society', "SELECT * FROM least_gropey_grope_counts;"))
 
 
-	queries['Star Crossed Pairs (Male Gropers)'] = """
-	SELECT players1.name as groper_name, players2.name as gropee_name
-	    FROM players AS players1
-	    JOIN players AS players2 ON (players1.ip != players2.ip AND players1.sex != players2.sex)
-	        LEFT JOIN gropes ON (players1.ip = gropes.groper AND players2.ip = gropes.gropee)
-	    WHERE players1.sex = 'Male' AND COALESCE(gropes.count,0) = 0
-	    ORDER BY groper_name, gropee_name;
-	"""
+    queries.append(('Sexual Predator Awareness Role Models', "SELECT * FROM least_groped_grope_counts;"))
 
 
-	queries['Star Crossed Pairs (Female Gropers)'] = """
-	SELECT players1.name as groper_name, players2.name as gropee_name
-	    FROM players AS players1
-	    JOIN players AS players2 ON (players1.ip != players2.ip AND players1.sex != players2.sex)
-	        LEFT JOIN gropes ON (players1.ip = gropes.groper AND players2.ip = gropes.gropee)
-	    WHERE players1.sex = 'Female' AND COALESCE(gropes.count,0) = 0
-	    ORDER BY groper_name, gropee_name;
-	"""
+    queries.append(('Star Crossed Pairs (Male Gropers)', """
+    SELECT players1.name as groper_name, players2.name as gropee_name
+        FROM players AS players1
+        JOIN players AS players2 ON (players1.ip != players2.ip AND players1.sex != players2.sex)
+            LEFT JOIN gropes ON (players1.ip = gropes.groper AND players2.ip = gropes.gropee)
+        WHERE players1.sex = 'Male' AND COALESCE(gropes.count,0) = 0
+        ORDER BY groper_name, gropee_name;
+    """))
 
 
-	queries['Average/Max/Min Groper Gropes by Sex'] = """
-	SELECT sex, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
-	    FROM groper_grope_counts GROUP BY sex ORDER BY sex;
-	"""
+    queries.append(('Star Crossed Pairs (Female Gropers)', """
+    SELECT players1.name as groper_name, players2.name as gropee_name
+        FROM players AS players1
+        JOIN players AS players2 ON (players1.ip != players2.ip AND players1.sex != players2.sex)
+            LEFT JOIN gropes ON (players1.ip = gropes.groper AND players2.ip = gropes.gropee)
+        WHERE players1.sex = 'Female' AND COALESCE(gropes.count,0) = 0
+        ORDER BY groper_name, gropee_name;
+    """))
 
 
-	queries['Average/Max/Min Groper Gropes by Race'] = """
-	SELECT race, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
-	    FROM groper_grope_counts GROUP BY race ORDER BY race;
-	"""
+    queries.append(('Average/Max/Min Groper Gropes by Sex', """
+    SELECT sex, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+        FROM groper_grope_counts GROUP BY sex ORDER BY sex;
+    """))
 
 
-	queries['Average/Max/Min Groper Gropes by Class'] = """
-	SELECT class, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
-	    FROM groper_grope_counts GROUP BY class ORDER BY class;
-	"""
+    queries.append(('Average/Max/Min Groper Gropes by Race', """
+    SELECT race, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+        FROM groper_grope_counts GROUP BY race ORDER BY race;
+    """))
 
 
-	queries['Average/Max/Min Gropee Gropes by Sex'] = """
-	SELECT sex, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
-	    FROM gropee_grope_counts GROUP BY sex ORDER BY sex;
-	"""
+    queries.append(('Average/Max/Min Groper Gropes by Class', """
+    SELECT class, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+        FROM groper_grope_counts GROUP BY class ORDER BY class;
+    """))
 
 
-	queries['Average/Max/Min Gropee Gropes by Race'] = """
-	SELECT race, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
-	    FROM gropee_grope_counts GROUP BY race ORDER BY race;
-	"""
+    queries.append(('Average/Max/Min Gropee Gropes by Sex', """
+    SELECT sex, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+        FROM gropee_grope_counts GROUP BY sex ORDER BY sex;
+    """))
 
-	queries['Average/Max/Min Gropee Gropes by Class'] = """
-	SELECT class, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
-	    FROM gropee_grope_counts GROUP BY class ORDER BY class;
-	"""
 
-	return queries
+    queries.append(('Average/Max/Min Gropee Gropes by Race', """
+    SELECT race, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+        FROM gropee_grope_counts GROUP BY race ORDER BY race;
+    """))
+
+    queries.append(('Average/Max/Min Gropee Gropes by Class', """
+    SELECT class, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+        FROM gropee_grope_counts GROUP BY class ORDER BY class;
+    """))
+
+    return queries
 
 
 def generate_HTML_table(query_results, border = 1, table_class='class_table', th_class='class_th',
@@ -534,7 +537,7 @@ def attempt_move_to(ip, x_move, y_move):
     conn = None
     d = {'user_found': False, 'free_move': False}
     try:
-        conn = psycopg2.connect(host='localhost', port=5432, database='BumpyMaps', user='BumpyMaps', password='BumpBumpBump')
+        conn = db_connection()
         
         cursor = conn.cursor()
         cursor.execute("BEGIN TRANSACTION; LOCK TABLE players IN ACCESS EXCLUSIVE MODE;")
@@ -579,3 +582,48 @@ def attempt_move_to(ip, x_move, y_move):
             conn.close()
         d['msg'] = pull_messages(ip)
         return d
+
+def parse_states(blah):
+    L = string.split(blah, '|')
+    new_state = []
+    for row in L:
+        success = True
+        L2 = string.split(row, ',')
+        if len(L2) != 4:
+            continue
+
+        property_ = L2[0][:50]
+        str_val = L2[1][:50]
+        try:
+            int_val = int(float(L2[2]))
+            dec_val = float(L2[3])
+        except Exception:
+            success = False
+
+        if success:
+            new_state.append((str(property_), str(str_val), int(int_val), float(dec_val)))
+    
+    return new_state
+
+
+def set_game_state(new_state):
+    conn = None
+    success = True
+    try:
+        conn = db_connection()
+        
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM game_state")
+        cursor.executemany("INSERT INTO game_state VALUES(%s, %s, %s, %s)", new_state)
+        conn.commit()
+           
+    except psycopg2.DatabaseError, e:
+        if conn:
+            conn.rollback()
+        success = False
+        
+    finally:
+        
+        if conn:
+            conn.close()
+        return success

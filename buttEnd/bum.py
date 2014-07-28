@@ -23,6 +23,16 @@ def link_wrap_ip(ip):
 	return "<A HREF=\'{0}\'>{1}</A>".format(url_for('show_user', ip=ip), ip)
 maps = {'icon' : show_img, 'ip': link_wrap_ip, 'groper': link_wrap_ip, 'gropee': link_wrap_ip}
 
+
+def html_dump_queries(queries):
+	L = ["".join(["<div><h3>", title, "</h3><p>", db_mgmt.generate_HTML_table(db_mgmt.get_query_results(q), maps=maps), "</p></div><br/>"]) for title, q in queries]
+	return "".join(L)
+
+def html_dump():
+	tables = ['players', 'game_state', 'messages', 'gropes']
+	return html_dump_queries([(tbl, "SELECT * FROM " + tbl) for tbl in tables])
+
+
 @app.route('/game.html')
 def game():
 	#return app.send_static_file('game.html')
@@ -42,11 +52,7 @@ def clear_and_seed_db():
 	db_mgmt.db_init()
 	db_mgmt.db_seed()
 
-	return	"<div>Done.</div><p/><div>" + \
-			db_mgmt.generate_HTML_table(db_mgmt.get_query_results("SELECT * FROM players"), maps=maps) + \
-			"</div><p/><div>" + \
-			db_mgmt.generate_HTML_table(db_mgmt.get_query_results("SELECT * FROM gropes"), maps=maps) + \
-			"</div>"
+	return	"<div>Done.</div><br/>" + html_dump()
 
 @app.route("/clear_db")
 def reset_db():
@@ -83,10 +89,13 @@ def serve_js(filename):
 def get_my_ip():
 	return jsonify({'ip': request.remote_addr}), 200
 
-@app.route("/show_users")
-def show_users():
-	query_results = db_mgmt.get_query_results("SELECT * FROM players")
-	return db_mgmt.generate_HTML_table(query_results, maps=maps), 200
+@app.route("/show_all")
+def show_all():
+	return html_dump()
+
+@app.route("/game_stats")
+def game_stats():
+	return html_dump_queries(db_mgmt.get_bumpy_queries())
 
 @app.route("/game_state")
 def game_state():
@@ -95,14 +104,31 @@ def game_state():
 	return jsonify({'players': ret1, 'game': ret2}), 200
 
 @app.route("/set_game_state/")
-@app.route("/set_game_state/<password>/<blah>")
-def set_game_state(password = None, blah = None):
+@app.route("/set_game_state/<blah>/")
+@app.route("/set_game_state/<blah>/<password>")
+def set_game_state(password = None, blah = ""):
+	# Example: http://localhost:8000/set_game_state/p1,,2,5|p2,stuff,2,5.888/<password>
+	#          will clear the game_state table and insert rows
+	#          ('p1', '', 2, 5) and ('p2', 'stuff', 2, 5.888)
+
 	if password != KING_B0DH1_PA55W0RD:
 		# Authentication Failed
 		L = [u"запрещено!", u'уходить.', u'Я устал...', u'Я хочу спать...', u'кто ты?', u'я сонный...']
 		return L[random.randint(0,len(L)-1)], 403
 
-	return "Hello!!!!!!", 200
+	anything_done = False
+	new_state = []
+	success = True
+
+	try:
+		new_state = db_mgmt.parse_states(blah)
+		anything_done = True
+		success = db_mgmt.set_game_state(new_state)
+	except Exception:
+		success = False
+
+	d = {'success': success, 'anything_done': anything_done, 'game_state': db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM game_state"))}
+	return jsonify(d), 200
 
 @app.route("/control/")
 @app.route("/control/<password>/")
@@ -112,7 +138,7 @@ def control(password = None):
 		L = [u"запрещено!", u'уходить.', u'Я устал...', u'Я хочу спать...', u'кто ты?', u'я сонный...']
 		return L[random.randint(0,len(L)-1)], 403
 
-	return "Hello!!!!!!", 200
+	return send_file('../frontEnd/control.html')
 
 @app.route("/dump_it_all")
 def dump_it_all():

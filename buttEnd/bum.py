@@ -144,6 +144,17 @@ def control(password = None):
 
 	return send_file('../frontEnd/control.html')
 
+
+@app.route("/add_or_update_user/<ip>/<name>/<icon>/<sex>/<race>/<class_>/<min_x_>/<max_x_>/<min_y_>/<max_y_>")
+def add_or_update_user(ip, name, icon, sex, race, class_, min_x_, max_x_, min_y_, max_y_):
+	ret = {}
+	try:
+		min_x, max_x, min_y, max_y = int(min_x_), int(max_x_), int(min_y_), int(max_y_)
+		ret = db_mgmt.add_or_update_user(ip, name, icon, sex, race, class_, min_x, max_x, min_y, max_y)
+	except Exception:
+		ret = {'success': False, 'message': 'Bad Input'}
+	return jsonify(ret), 200
+
 @app.route("/dump_it_all")
 def dump_it_all():
 	ret1_tabular = db_mgmt.get_query_results("SELECT * FROM players")

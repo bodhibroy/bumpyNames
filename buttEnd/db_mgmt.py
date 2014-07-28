@@ -418,6 +418,74 @@ def get_user_at(x_pos, y_pos, cursor, trim = False):
     return d
 
 
+def is_anyone_at_loc(players, x, y):
+    for p in players:
+        if (p['location_x'] == x) and (p['location_y'] == y):
+            return True
+
+    return False
+
+def add_or_update_user(ip, name, icon, sex, race, class_, min_x, max_x, min_y, max_y):
+
+    players = query_results_to_list_of_dicts(get_query_results("SELECT * FROM players"))
+    ret = {'success': True, 'location_x': None, 'location_y': None, 'out_of_space': None, 'existing_user': False}
+
+    if players is None:
+        ret['success'] = False
+    else:
+        conn = None
+        success = True
+        try:
+            conn = db_connection()
+            cursor = conn.cursor()
+
+            existing_user = None
+            for user in players:
+                if user['ip'] == ip:
+                    existing_user = user
+                    ret['existing_user'] = True
+                    break
+
+            if existing_user is None:
+
+                ret['out_of_space'] = False
+                for k in range(10):
+                    x_test = random.randint(min_x, max_x)
+                    y_test = random.randint(min_y, max_y)
+                    if not is_anyone_at_loc(players, x_test, y_test):
+                        ret['location_x'] = x_test
+                        ret['location_y'] = y_test
+                        break
+
+                for x in range(min_x, max_x+1):
+                    if (ret['location_x'] is not None) and (ret['location_x'] is not None):
+                        break
+
+                    for y in range(min_y, max_y+1):
+                        if not is_anyone_at_loc(players, x, y):
+                            ret['location_x'] = x
+                            ret['location_y'] = y
+                            break
+
+                if (ret['location_x'] is not None) and (ret['location_x'] is not None):
+                    cursor.execute("INSERT INTO players VALUES (%s,%s,%s,%s,%s,%s,%s,%s)", (ip, name, icon, sex, race, class_, ret['location_x'], ret['location_y']))
+                else:
+                    ret['out_of_space'] = True
+            else:
+                ret['location_x'] = existing_user['location_x']
+                ret['location_y'] = existing_user['location_y']
+                cursor.execute("UPDATE players SET name=%s, icon=%s, sex=%s, race=%s, class=%s WHERE ip=%s", (name, icon, sex, race, class_, ip))
+            conn.commit()
+               
+        except psycopg2.DatabaseError, e:
+            if conn:
+                conn.rollback()
+            ret['success'] = False
+
+    return ret
+
+
+
 def move_user_to(ip, x_pos, y_pos, cursor):
     cursor.execute("UPDATE players SET location_x=%s, location_y=%s WHERE ip=%s", (x_pos, y_pos, ip))
     return cursor.rowcount
@@ -440,6 +508,8 @@ def move_user_to(ip, x_pos, y_pos, cursor):
 #         if conn:
 #             conn.close()
 #     return ret_code
+
+
 
 
 def add_message(ip, message, intval1 = 0, intval2 = 0, intval3 = 0, intval4 = 0, strval = "", cursor = None):

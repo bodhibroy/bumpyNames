@@ -97,11 +97,15 @@ def show_all():
 def game_stats():
 	return html_dump_queries(db_mgmt.get_bumpy_queries())
 
-@app.route("/game_state")
-def game_state():
+@app.route("/game_state/")
+@app.route("/game_state/<ip>")
+def game_state(ip = None):
 	ret1 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM players"))
 	ret2 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM game_state"))
-	return jsonify({'players': ret1, 'game': ret2}), 200
+	d = {'players': ret1, 'game': ret2, 'messages': []}
+	if ip is not None:
+		d['messages'] = db_mgmt.pull_messages(ip)
+	return jsonify(d), 200
 
 @app.route("/set_game_state/")
 @app.route("/set_game_state/<blah>/")

@@ -65,12 +65,22 @@ function draw() {
 // 		context.stroke();
 // 		context.closePath();
 		// Draw players
+
 		drawEach('blue'); // for _self_
+
 		//drawOthers(); 
+		
+		
 	}
 }
 
+// function drawEach(){
+// 	var urlIcon=document.cookie.split(';')[0].split('=')[1];
+// // 	console.log(urlIcon);
+// // 	console.log('blah');
+// }
 
+// 
 function drawEach(colorStroke){
 
 // 	console.log(x,y);

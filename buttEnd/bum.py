@@ -14,6 +14,11 @@ import random
 #KING_B0DH1_PA55W0RD = "BP,YMHaMD,AtPaGBDoyK"
 KING_B0DH1_PA55W0RD = "itobwywmtbfsflutsdkwyeomputpowiyscitujcituestitiamtycitujcituibsnicfytibstsmmaibtaiwtdibmlmabllycystysmhttatlccetytiwbhfarifoycitujcituestitiamtycitujcituaesiwimtictibsnicfytibstsmmaibtaiwtdibmlmabllyaikimeuftbikywjlmwsdiyibsnicfytibstsmmaibtaiwtdibmlmabllyibsnicfytitobwywmtbibsnicfytitobwywmtb"
 
+def get403ForbiddenMessage():
+	forbiddenMessages = [u"запретный!", u'уходить.', u'Я устал...', u'Я хочу спать...', u'кто ты?', u'я сонный...']
+	return forbiddenMessages[random.randint(0,len(forbiddenMessages)-1)]
+
+
 #app = Flask(__name__, static_url_path=os.path.join(os.getcwd(), '../frontEnd/'))
 app = Flask(__name__)
 
@@ -93,6 +98,15 @@ def get_my_ip():
 def show_all():
 	return html_dump()
 
+@app.route("/get_icon_list/<my_filter>")
+def get_icon_list(my_filter = ""):
+	icon_list = []
+	icon_path = os.path.join(os.getcwd(), '..', 'frontEnd', 'icons')
+	print icon_path
+	icon_list = [ f for f in os.listdir(icon_path) if os.path.isfile(os.path.join(icon_path,f)) and (my_filter.lower() in f.lower())]
+	return jsonify({'icons': icon_list}), 200
+
+
 @app.route("/game_stats")
 def game_stats():
 	return html_dump_queries(db_mgmt.get_bumpy_queries())
@@ -117,13 +131,12 @@ def set_game_state(password = None, blah = ""):
 
 	if password != KING_B0DH1_PA55W0RD:
 		# Authentication Failed
-		L = [u"запрещено!", u'уходить.', u'Я устал...', u'Я хочу спать...', u'кто ты?', u'я сонный...']
-		return L[random.randint(0,len(L)-1)], 403
+		return get403ForbiddenMessage(), 403
 
+	# Auth Ok
 	anything_done = False
 	new_state = []
 	success = True
-
 	try:
 		new_state = db_mgmt.parse_states(blah)
 		anything_done = True
@@ -139,10 +152,9 @@ def set_game_state(password = None, blah = ""):
 def control(password = None):
 	if password != KING_B0DH1_PA55W0RD:
 		# Authentication Failed
-		L = [u"запрещено!", u'уходить.', u'Я устал...', u'Я хочу спать...', u'кто ты?', u'я сонный...']
-		return L[random.randint(0,len(L)-1)], 403
-
-	return send_file('../frontEnd/control.html')
+		return get403ForbiddenMessage(), 403
+	else:
+		return send_file('../frontEnd/control.html')
 
 
 @app.route("/add_or_update_user/<ip>/<name>/<icon>/<sex>/<race>/<class_>/<min_x_>/<max_x_>/<min_y_>/<max_y_>")

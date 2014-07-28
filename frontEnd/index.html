@@ -8,7 +8,7 @@
 		<meta name="author" content="">
 		<title>The web game</title>
 		<script type='text/javascript' href='./js/cookie.js'></script>
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		
 		<style type="text/css">
 			.myButton {
@@ -53,6 +53,8 @@
 				top:1px;
 			}
 		</style>
+		
+		
 		<script>
 			var iconURL='';
 			function checkName() 
@@ -81,23 +83,26 @@
 					e = document.getElementById("race");
 					var race = e.options[e.selectedIndex].value;
 					var icon = document.cookie.split(';')[0].split('=')[1].split('/')[4];
-					// Set cookie
-// 					document.cookie='username=' + document.someForm.username.value+';' 
-// 					document.cookie= 'race='+race + ';'; // path=/';
-// 					document.cookie= 'class='+_class+ ';'
 					var ipaddr='';
-					$.getJSON('http://localhost:8000/get_my_ip', function(data){
-						//data is the JSON string
-						ipaddr=data['ip'];
-					});
-					console.log(ipaddr);
-					//set AJAX data
-					var url='./demo.py?';
-					var content='username=' + document.someForm.username.value+'&gender='+gender+'&race='+race+'&class='+_class;//+'&profession='+professions;
 					
+					$.getJSON('/get_my_ip', function(data){
+						//data is the JSON string
+						
+						ipaddr=data.ip;
+
+						var url='/add_or_update_user/';
+					var content=ipaddr + '/' + document.someForm.username.value + '/' + icon + '/' + gender + '/' + race + '/' + _class + '/' + '0/1200/0/900';
+					console.log(ipaddr,content);	
 					// xmlhttp.open("GET",url+content,true);
 // 					xmlhttp.send();
-					window.location.href='./disclaimer.html';
+					//window.location.href='./disclaimer.html';
+					});
+
+					//set AJAX data
+					
+					 // /add_or_update_user/<ip>/<name>/<icon>/<sex>/<race>/<class_>/<min_x_>/<max_x_>/<min_y_>/<max_y_>
+										
+					
 				}
 			}
 			

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from flask import Flask, request, jsonify, Response, send_file, make_response, url_for
 
 import db_mgmt
@@ -7,8 +9,10 @@ import game
 import os
 import datetime
 import hashlib
+import random
 
-
+#KING_B0DH1_PA55W0RD = "BP,YMHaMD,AtPaGBDoyK"
+KING_B0DH1_PA55W0RD = "itobwywmtbfsflutsdkwyeomputpowiyscitujcituestitiamtycitujcituibsnicfytibstsmmaibtaiwtdibmlmabllycystysmhttatlccetytiwbhfarifoycitujcituestitiamtycitujcituaesiwimtictibsnicfytibstsmmaibtaiwtdibmlmabllyaikimeuftbikywjlmwsdiyibsnicfytibstsmmaibtaiwtdibmlmabllyibsnicfytitobwywmtbibsnicfytitobwywmtb"
 
 #app = Flask(__name__, static_url_path=os.path.join(os.getcwd(), '../frontEnd/'))
 app = Flask(__name__)
@@ -56,7 +60,8 @@ def serve_icon(filename):
 
 		#etag = miscmisc.file_sha1hash(file_path)
 
-		response = send_file(file_path, mimetype="image/png", as_attachment=False, attachment_filename=None, add_etags=True, cache_timeout=None, conditional=False)
+		#response = send_file(file_path, mimetype="image/png", as_attachment=False, attachment_filename=None, add_etags=True, cache_timeout=None, conditional=False)
+		response = send_file(file_path, mimetype="image/png", as_attachment=False, attachment_filename=None, add_etags=True)
 		expiry_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=360000)
 		response.headers["Cache-Control"] = "max-age=360000, must-revalidate"
 		response.headers["Expires"] = expiry_time.strftime("%a, %d %b %Y %H:%M:%S GMT")
@@ -69,7 +74,8 @@ def serve_icon(filename):
 @app.route("/js/<filename>")
 def serve_js(filename):
 	try:
-		return send_file('../frontEnd/js/{0}'.format(filename), mimetype="application/javascript", as_attachment=False, attachment_filename=None, add_etags=True, cache_timeout=None, conditional=False)
+		#return send_file('../frontEnd/js/{0}'.format(filename), mimetype="application/javascript", as_attachment=False, attachment_filename=None, add_etags=True, cache_timeout=None, conditional=False)
+		return send_file('../frontEnd/js/{0}'.format(filename), mimetype="application/javascript", as_attachment=False, attachment_filename=None, add_etags=True)
 	except Exception:
 		return "Not Found. (Really... I tried...)", 404
 
@@ -87,6 +93,26 @@ def game_state():
 	ret1 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM players"))
 	ret2 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM game_state"))
 	return jsonify({'players': ret1, 'game': ret2}), 200
+
+@app.route("/set_game_state/")
+@app.route("/set_game_state/<password>/<blah>")
+def set_game_state(password = None, blah = None):
+	if password != KING_B0DH1_PA55W0RD:
+		# Authentication Failed
+		L = [u"запрещено!", u'уходить.', u'Я устал...', u'Я хочу спать...', u'кто ты?', u'я сонный...']
+		return L[random.randint(0,len(L)-1)], 403
+
+	return "Hello!!!!!!", 200
+
+@app.route("/control/")
+@app.route("/control/<password>/")
+def control(password = None):
+	if password != KING_B0DH1_PA55W0RD:
+		# Authentication Failed
+		L = [u"запрещено!", u'уходить.', u'Я устал...', u'Я хочу спать...', u'кто ты?', u'я сонный...']
+		return L[random.randint(0,len(L)-1)], 403
+
+	return "Hello!!!!!!", 200
 
 @app.route("/dump_it_all")
 def dump_it_all():
@@ -124,8 +150,8 @@ def move(ip, move):
 	else:
 		ret['success'] = False
 
-	query_results = db_mgmt.get_query_results("SELECT * FROM players where ip=\'{0}\'".format(ip))
-	s = db_mgmt.generate_HTML_table(query_results, maps=maps)
+	#query_results = db_mgmt.get_query_results("SELECT * FROM players where ip=\'{0}\'".format(ip))
+	#s = db_mgmt.generate_HTML_table(query_results, maps=maps)
 
 	if ret['success']:
 		ret['details'] = db_mgmt.attempt_move_to(ip, move_x, move_y)

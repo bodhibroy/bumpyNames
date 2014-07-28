@@ -37,7 +37,7 @@ function startView(){
 		draw();
 		reDraw();
 	}
-	else{alert("Very funny lah!");restartGame()};
+	else{alert("Very funny lah! You didn't put in your name.");restartGame()};
 }
 
 
@@ -67,13 +67,36 @@ function draw() {
 // 		context.closePath();
 		// Draw players
 
-		drawEach(); // for _self_
+		drawALL(); 
 
 		//drawOthers(); 
 		
 		
 	}
 }
+
+function drawALL(){
+    $.getJSON('http://localhost:8000/game_state', function(data) {
+    //data is the JSON string
+	//console.log(data);
+	var players=data['players'];
+	//console.log(players)
+	for (var player in players){
+	    //console.log(players[player]['icon']);
+	    var iconURL='http://localhost:8000/icons/' + players[player]['icon'];
+	    var pos_x=players[player]['location_x'];
+	    var pos_y=players[player]['location_y'];
+	    var img = new Image;
+	    img.src = iconURL;
+	    context.drawImage(img,pos_x,pos_y);
+	}
+	//console.log('blah');
+
+    });
+    
+}
+
+
 
 // function drawEach(){
 // 	var urlIcon=document.cookie.split(';')[0].split('=')[1];

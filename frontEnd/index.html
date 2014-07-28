@@ -8,6 +8,8 @@
 		<meta name="author" content="">
 		<title>The web game</title>
 		<script type='text/javascript' href='./js/cookie.js'></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		
 		<style type="text/css">
 			.myButton {
 				-moz-box-shadow: 3px 4px 0px 0px #8a2a21;
@@ -76,10 +78,19 @@
 					var gender = e.options[e.selectedIndex].value;
 					e = document.getElementById("class");
 					var _class = e.options[e.selectedIndex].value;
+					e = document.getElementById("race");
+					var race = e.options[e.selectedIndex].value;
+					var icon = document.cookie.split(';')[0].split('=')[1].split('/')[4];
 					// Set cookie
-					document.cookie='username=' + document.someForm.username.value+';' 
-					document.cookie= 'race='+race + ';'; // path=/';
-					
+// 					document.cookie='username=' + document.someForm.username.value+';' 
+// 					document.cookie= 'race='+race + ';'; // path=/';
+// 					document.cookie= 'class='+_class+ ';'
+					var ipaddr='';
+					$.getJSON('http://localhost:8000/get_my_ip', function(data){
+						//data is the JSON string
+						ipaddr=data['ip'];
+					});
+					console.log(ipaddr);
 					//set AJAX data
 					var url='./demo.py?';
 					var content='username=' + document.someForm.username.value+'&gender='+gender+'&race='+race+'&class='+_class;//+'&profession='+professions;
@@ -118,7 +129,9 @@
 				content+='</table>';
 				
 				document.getElementById('icons').innerHTML=content;
+				document.getElementById('selectedIcon').innerHTML='<img src="./icons/'+ names[Math.round(Math.random()*46)] + '"</img>' + '(randomly selected. Please click one of the images below)';
 			}
+			
 		</script>
 	</head>
 

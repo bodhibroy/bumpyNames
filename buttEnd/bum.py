@@ -98,11 +98,15 @@ def show_all():
 def game_stats():
 	return html_dump_queries(db_mgmt.get_bumpy_queries())
 
-@app.route("/game_state")
-def game_state():
+@app.route("/game_state/")
+@app.route("/game_state/<ip>")
+def game_state(ip = None):
 	ret1 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM players"))
 	ret2 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM game_state"))
-	return jsonify({'players': ret1, 'game': ret2}), 200
+	d = {'players': ret1, 'game': ret2, 'messages': []}
+	if ip is not None:
+		d['messages'] = db_mgmt.pull_messages(ip)
+	return jsonify(d), 200
 
 @app.route("/set_game_state/")
 @app.route("/set_game_state/<blah>/")
@@ -140,6 +144,17 @@ def control(password = None):
 		return L[random.randint(0,len(L)-1)], 403
 
 	return send_file('../frontEnd/control.html')
+
+
+@app.route("/add_or_update_user/<ip>/<name>/<icon>/<sex>/<race>/<class_>/<min_x_>/<max_x_>/<min_y_>/<max_y_>")
+def add_or_update_user(ip, name, icon, sex, race, class_, min_x_, max_x_, min_y_, max_y_):
+	ret = {}
+	try:
+		min_x, max_x, min_y, max_y = int(min_x_), int(max_x_), int(min_y_), int(max_y_)
+		ret = db_mgmt.add_or_update_user(ip, name, icon, sex, race, class_, min_x, max_x, min_y, max_y)
+	except Exception:
+		ret = {'success': False, 'message': 'Bad Input'}
+	return jsonify(ret), 200
 
 @app.route("/dump_it_all")
 def dump_it_all():

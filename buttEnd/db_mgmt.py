@@ -39,8 +39,6 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
           groper inet NOT NULL,
           gropee inet NOT NULL,
           count integer DEFAULT 0,
-          timestamp timestamp DEFAULT CURRENT_TIMESTAMP,
-          CONSTRAINT groper_gropee PRIMARY KEY (groper, gropee),
           CONSTRAINT gropee FOREIGN KEY (gropee)
               REFERENCES players (ip) MATCH SIMPLE
               ON UPDATE NO ACTION ON DELETE NO ACTION,

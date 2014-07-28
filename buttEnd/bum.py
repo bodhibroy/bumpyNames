@@ -10,7 +10,8 @@ import hashlib
 
 
 
-app = Flask(__name__, static_url_path=os.path.join(os.getcwd(), '../frontEnd/'))
+#app = Flask(__name__, static_url_path=os.path.join(os.getcwd(), '../frontEnd/'))
+app = Flask(__name__)
 
 def show_img(src):
 	return "<IMG SRC=\'/icons/{0}\'/>".format(src)
@@ -18,10 +19,19 @@ def link_wrap_ip(ip):
 	return "<A HREF=\'{0}\'>{1}</A>".format(url_for('show_user', ip=ip), ip)
 maps = {'icon' : show_img, 'ip': link_wrap_ip, 'groper': link_wrap_ip, 'gropee': link_wrap_ip}
 
-@app.route('/')
+@app.route('/game.html')
 def game():
-	return app.send_static_file('game.html')
-	#return open('../frontEnd/game.html').read()
+	#return app.send_static_file('game.html')
+	return send_file('../frontEnd/game.html')
+
+@app.route('/index.html')
+@app.route('/')
+def index():
+	return send_file('../frontEnd/index.html')
+
+@app.route('/disclaimer.html')
+def index1():
+	return send_file('../frontEnd/disclaimer.html')
 
 @app.route("/clear_and_seed_db")
 def clear_and_seed_db():

@@ -8,7 +8,7 @@ var bbby=100;
 var bbbx=WIDTH/2-50;
 var flag=1;
 var name=document.cookie.split('=')[1].toUpperCase();
-
+var ip='';
 
 window.addEventListener('keydown',performKeyDownEvent,true);
 
@@ -33,6 +33,7 @@ function startView(){
 		name=document.cookie.split(';')[0].split('=')[1];
 		canvas=document.getElementById("myCanvas");
 		context=canvas.getContext('2d');
+		var ip='';
 		draw();
 		reDraw();
 	}
@@ -66,7 +67,7 @@ function draw() {
 // 		context.closePath();
 		// Draw players
 
-		drawEach('blue'); // for _self_
+		drawEach(); // for _self_
 
 		//drawOthers(); 
 		
@@ -81,28 +82,29 @@ function draw() {
 // }
 
 // 
-function drawEach(colorStroke){
+function drawEach(){
 
 // 	console.log(x,y);
 	context.beginPath();
 // 	context.rect(x, y, Math.round(context.measureText(name).width)+10, 25);
-	context.arc(x,y,context.measureText(name).width/2+10,0,2*Math.PI);
-	context.fillStyle = '#FFFFFF';
-	context.fill();
-	context.lineWidth = 3;
-	context.strokeStyle = colorStroke;
-	context.stroke();
-	context.closePath();
-	context.beginPath();
-	if (document.cookie.split('=')[1].toUpperCase()!=name){
-		context.font="17px Serif";
-		context.fillStyle='#000000';
-	}
-	else{
-		context.font="20px Serif";
-		context.fillStyle='#FF0000';
-	}
-	context.fillText(name, x-Math.round(context.measureText(name).width/2), y+5);
+// 	context.arc(x,y,context.measureText(name).width/2+10,0,2*Math.PI);
+// 	context.fillStyle = '#FFFFFF';
+// 	context.fill();
+// 	context.lineWidth = 3;
+// 	context.strokeStyle = colorStroke;
+// 	context.stroke();
+// 	context.closePath();
+// 	context.beginPath();
+// 	if (document.cookie.split('=')[1].toUpperCase()!=name){
+// 		context.font="17px Serif";
+// 		context.fillStyle='#000000';
+// 	}
+// 	else{
+// 		context.font="20px Serif";
+// 		context.fillStyle='#FF0000';
+// 	}
+// 	context.fillText(name, x-Math.round(context.measureText(name).width/2), y+5);
+	
 	context.closePath();
 	
 }

@@ -50,7 +50,8 @@ def index1():
 @app.route("/clear_and_seed_db")
 def clear_and_seed_db():
 	db_mgmt.db_init()
-	db_mgmt.db_seed()
+	db_mgmt.db_seed() # comment this line for actual runs
+
 
 	return	"<div>Done.</div><br/>" + html_dump()
 

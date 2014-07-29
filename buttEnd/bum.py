@@ -34,7 +34,7 @@ def html_dump_queries(queries):
 	return "".join(L)
 
 def html_dump():
-	tables = ['players', 'game_state', 'messages', 'gropes']
+	tables = ['players', 'coins', 'game_state', 'messages', 'gropes']
 	return html_dump_queries([(tbl, "SELECT * FROM " + tbl) for tbl in tables])
 
 
@@ -117,7 +117,8 @@ def game_stats():
 def game_state(ip = None):
 	ret1 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM players"))
 	ret2 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM game_state"))
-	d = {'players': ret1, 'game': ret2, 'messages': []}
+	ret3 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM coins"))
+	d = {'players': ret1, 'game': ret2, 'coins': ret3, 'messages': []}
 	if ip is not None:
 		d['messages'] = db_mgmt.pull_messages(ip)
 	return jsonify(d), 200
@@ -148,6 +149,21 @@ def set_game_state(password = None, blah = ""):
 	d = {'success': success, 'anything_done': anything_done, 'game_state': db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM game_state"))}
 	return jsonify(d), 200
 
+@app.route("/add_coin/<location_x>/<location_y>/<password>")
+def add_coin(location_x, location_y, password):
+	if password != KING_B0DH1_PA55W0RD:
+		# Authentication Failed
+		return get403ForbiddenMessage(), 403
+
+	# Auth Ok
+	d = {'success': True}
+	try:
+		d['success'] = db_mgmt.add_coin_at_location(location_x, location_y)
+	except Exception:
+		d['success'] = False
+
+	return jsonify(d), 200
+
 @app.route("/control/")
 @app.route("/control/<password>/")
 def control(password = None):
@@ -158,10 +174,14 @@ def control(password = None):
 		return send_file('../frontEnd/control.html')
 
 
-@app.route("/add_or_update_user/<ip>/<name>/<icon>/<sex>/<race>/<class_>/<min_x_>/<max_x_>/<min_y_>/<max_y_>")
-def add_or_update_user(ip, name, icon, sex, race, class_, min_x_, max_x_, min_y_, max_y_):
+@app.route("/add_or_update_user/<name>/<icon>/<sex>/<race>/<class_>/<min_x_>/<max_x_>/<min_y_>/<max_y_>/")
+@app.route("/add_or_update_user/<name>/<icon>/<sex>/<race>/<class_>/<min_x_>/<max_x_>/<min_y_>/<max_y_>/<ip_>")
+def add_or_update_user(name, icon, sex, race, class_, min_x_, max_x_, min_y_, max_y_, ip_ = None):
 	ret = {}
+	ip = ip_
 	try:
+		if ip is None:
+			ip = request.remote_addr
 		min_x, max_x, min_y, max_y = int(min_x_), int(max_x_), int(min_y_), int(max_y_)
 		ret = db_mgmt.add_or_update_user(ip, name, icon, sex, race, class_, min_x, max_x, min_y, max_y)
 	except Exception:
@@ -177,13 +197,62 @@ def dump_it_all():
 	return jsonify({'as_list_of_dicts': {'players': ret1_dod, 'gropes': ret2_dod}, 'tabularly': {'players': ret1_tabular, 'gropes': ret2_tabular}}), 200
 	# Yeah... I could do it more generally, but why...
 
+@app.route("/high_fidelity_records/")
+def high_fidelity_records():
+	ret_tabular = db_mgmt.get_query_results("SELECT * FROM high_fidelity_records")
+	return jsonify({'high_fidelity_records': ret_tabular}), 200
+
+@app.route("/high_fidelity_records_html/")
+def high_fidelity_records_html():
+	tables = ['high_fidelity_records']
+	return html_dump_queries([(tbl, "SELECT * FROM " + tbl) for tbl in tables])
+
 @app.route("/show_user/<ip>")
 def show_user(ip):
 	query_results = db_mgmt.get_query_results("SELECT * FROM players WHERE ip=\'{0}\'".format(ip), True)
 	return db_mgmt.generate_HTML_table(query_results, maps=maps), 200
 
-@app.route("/move/<ip>/<move>")
-def move(ip, move):
+# @app.route("/move/<ip>/<move>")
+# def move(ip, move):
+# 	ret = {'success': True}
+
+# 	move_x = 0
+# 	move_y = 0
+
+# 	if move.upper() == "LEFT":
+# 		move_x = -1
+# 		move_y = 0
+# 	elif move.upper() == "RIGHT":
+# 		move_x = 1
+# 		move_y = 0
+# 	elif move.upper() == "DOWN":
+# 		move_x = 0
+# 		move_y = -1
+# 	elif move.upper() == "UP":
+# 		move_x = 0
+# 		move_y = 1
+# 	else:
+# 		ret['success'] = False
+
+# 	#query_results = db_mgmt.get_query_results("SELECT * FROM players where ip=\'{0}\'".format(ip))
+# 	#s = db_mgmt.generate_HTML_table(query_results, maps=maps)
+
+# 	if ret['success']:
+# 		ret['details'] = db_mgmt.attempt_move_to(ip, move_x, move_y)
+
+# 		#query_results = db_mgmt.get_query_results("SELECT * FROM players where ip=\'{0}\'".format(ip))
+# 		#s += "<br/><br/><br/>"
+# 		#s += db_mgmt.generate_HTML_table(query_results, maps=maps)
+# 		#s += "<br/><br/><br/>"
+# 		#query_results = db_mgmt.get_query_results("SELECT * FROM messages")
+# 		#s += db_mgmt.generate_HTML_table(query_results, maps=maps)
+
+# 	#return s, 200
+# 	return jsonify(ret), 200
+
+@app.route("/move/<move>")
+def move(move):
+	ip = request.remote_addr
 	ret = {'success': True}
 
 	move_x = 0
@@ -219,7 +288,6 @@ def move(ip, move):
 
 	#return s, 200
 	return jsonify(ret), 200
-
 
 
 

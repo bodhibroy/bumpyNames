@@ -84,15 +84,17 @@
 					var race = e.options[e.selectedIndex].value;
 					var icon = document.cookie.split(';')[0].split('=')[1].split('/')[4];
 					var ipaddr='';
-					
+					var nameOfUser= document.someForm.username.value;
+					nameOfUser.replace(/(\||\/)/g, '');
 					$.getJSON('/get_my_ip', function(data){
 						//data is the JSON string
 						
 						ipaddr=data.ip;
 
 						var url='/add_or_update_user/';
-					var content=ipaddr + '/' + document.someForm.username.value + '/' + icon + '/' + gender + '/' + race + '/' + _class + '/' + '0/1200/0/900';
-					console.log(ipaddr,content);	
+					var content=ipaddr + '/' + nameOfUser + '/' + icon + '/' + gender + '/' + race + '/' + _class + '/' + '0/1200/0/900';
+					console.log(content);
+					
 					// xmlhttp.open("GET",url+content,true);
 // 					xmlhttp.send();
 					//window.location.href='./disclaimer.html';

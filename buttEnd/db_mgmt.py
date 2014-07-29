@@ -79,7 +79,9 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
         CREATE TABLE high_fidelity_records
         (
           record_type integer NOT NULL,
-          silly_string varchar(600) DEFAULT ''
+          desc varchar(20) DEFAULT '',
+          silly_string varchar(600) DEFAULT '',
+          time_stamp  timestamp DEFAULT CURRENT_TIMESTAMP
         );
         """.format(top_gg_limit, top_avoider_limit))
    
@@ -159,7 +161,8 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
                 INNER JOIN players AS players2 ON (gropes.gropee = players2.ip);
         """.format(top_gg_limit, top_avoider_limit))
 
-    cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s)", (game_messages['db init']))
+    record_type = 'db init'
+    cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, 'Initialized'))
 
     conn.commit()
     conn.close()
@@ -216,6 +219,9 @@ def db_seed(num_rnd = 10, p_g = 0.25, p_gv1 = 0.2, p_gv2 = 0.35):
             else:
                 if random.random() <= p_g:
                     cursor.execute("INSERT INTO gropes VALUES ('10.0.0.{0}', '10.0.0.{1}', {2});".format(101+k1,101+k2,random.randint(1,12)))
+
+    record_type = 'misc'
+    cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, 'DB randomly seeded.'))
     conn.commit()
     conn.close()
     
@@ -427,7 +433,6 @@ def get_user(ip, cursor, trim = False):
     try:
         cursor.execute("SELECT * FROM players where ip=%s", (ip,))
         cols = [cn[0] for cn in cursor.description]
-        print "*****************" + str(cols)
         for row in cursor:
             this_row = [s.strip() if hasattr(s, 'strip') else s for s in row] if trim else row
             d = dict(zip(cols, this_row))
@@ -506,9 +511,18 @@ def add_or_update_user(ip, name, icon, sex, race, class_, min_x, max_x, min_y, m
                 else:
                     ret['out_of_space'] = True
             else:
+
                 ret['location_x'] = existing_user['location_x']
                 ret['location_y'] = existing_user['location_y']
                 cursor.execute("UPDATE players SET name=%s, icon=%s, sex=%s, race=%s, class=%s WHERE ip=%s", (name, icon, sex, race, class_, ip))
+
+
+            record_type = 'update user'
+            if existing_user is None:
+                msg = 'add user'
+
+            cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, name, icon, sex, race, class_])))
+
             conn.commit()
                
         except psycopg2.DatabaseError, e:
@@ -631,7 +645,10 @@ def add_coin_at_location(location_x, location_y):
             success = False
         else:
             cursor.execute("INSERT INTO coins VALUES(%s, %s)", (location_x, location_y))
-        
+
+            record_type = 'placed coin'
+            cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([str(location_x), str(location_y)])))
+
         cursor.execute("COMMIT;")
            
     except psycopg2.DatabaseError, e:
@@ -705,19 +722,26 @@ def attempt_move_to(ip, x_move, y_move):
                 increment_move_record(ip, cursor)
                 # step sound message
                 # inform of new position by message
-                add_message(ip, game_messages["moved"], cursor = cursor)
+                add_message(ip, game_messages["user move"], cursor = cursor)
+
+                record_type = 'user move'
+                cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, str(this_user['location_x']+x_move), str(this_user['location_y']+y_move)])))
 
                 num_coins = take_coins_at_location(location_x, location_y, cursor)                
                 if num_coins > 0:
                     for k in range(num_coins):
                         increment_coin_record(ip, cursor)
+                        cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages['collected coin'], '|'.join([ip, str(this_user['location_x']+x_move), str(this_user['location_y']+y_move)])))
                         add_message(ip, game_messages["collected coin"], cursor = cursor)
             else:
                 # Collision
                 # grunts on both sides
+                increment_grope_record(ip, user_at_other_location['ip'], cursor)
                 add_message(ip, game_messages["collide"], cursor = cursor)
                 add_message(user_at_other_location['ip'], game_messages["collided into"], cursor = cursor)
-                increment_grope_record(ip, user_at_other_location['ip'], cursor)
+
+                record_type = 'player collision'
+                cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([str(ip), str(user_at_other_location['ip'])])))
         
         cursor.execute("COMMIT;")
         get_query_results("SELECT * FROM players where ip=\'{0}\'".format(ip))

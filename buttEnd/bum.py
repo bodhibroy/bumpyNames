@@ -183,7 +183,6 @@ def add_or_update_user(name, icon, sex, race, class_, min_x_, max_x_, min_y_, ma
 			ip = request.remote_addr
 		min_x, max_x, min_y, max_y = int(min_x_), int(max_x_), int(min_y_), int(max_y_)
 		ret = db_mgmt.add_or_update_user(ip, name, icon, sex, race, class_, min_x, max_x, min_y, max_y)
-
 	except Exception:
 		ret = {'success': False, 'message': 'Bad Input'}
 	return jsonify(ret), 200
@@ -198,9 +197,14 @@ def dump_it_all():
 	# Yeah... I could do it more generally, but why...
 
 @app.route("/high_fidelity_records/")
-def high_fidelity_records(ip = None):
+def high_fidelity_records():
 	ret_tabular = db_mgmt.get_query_results("SELECT * FROM high_fidelity_records")
 	return jsonify({'high_fidelity_records': ret_tabular}), 200
+
+@app.route("/high_fidelity_records_html/")
+def high_fidelity_records_html():
+	tables = ['high_fidelity_records']
+	return html_dump_queries([(tbl, "SELECT * FROM " + tbl) for tbl in tables])
 
 @app.route("/show_user/<ip>")
 def show_user(ip):

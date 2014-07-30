@@ -78,8 +78,8 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
     cursor.execute("""
         CREATE TABLE high_fidelity_records
         (
-          record_type integer NOT NULL,
-          desc varchar(20) DEFAULT '',
+          record_code integer NOT NULL,
+          record_type varchar(20) DEFAULT '',
           silly_string varchar(600) DEFAULT '',
           time_stamp  timestamp DEFAULT CURRENT_TIMESTAMP
         );
@@ -257,29 +257,39 @@ def quick_query_safer(q, data):
             conn.close()
         return ret_code
 
-def get_query_results(query, trim = False):
-    conn = None
+def get_query_results_(query, cursor, trim = False):
     ret = []
     cols = []
     try:
-        conn = db_connection() 
-        cursor = conn.cursor()
         cursor.execute(query)
         cols = [cn[0] for cn in cursor.description]
         for row in cursor:
             this_row = [s.strip() if hasattr(s, 'strip') else s for s in row] if trim else row
-            ret.append(this_row)
+            ret.append(this_row)    
+    except psycopg2.DatabaseError, e:
+        if conn:
+            print e
+            conn.rollback()
+        return None
+    finally:
+        return {'cols': cols, 'data': ret}
+
+def get_query_results(query, trim = False):
+    conn = None
+    d = None
+    try:
+        conn = db_connection() 
+        cursor = conn.cursor()
+        d = get_query_results_(query, cursor, trim)
     
     except psycopg2.DatabaseError, e:
         pass
-        
+
     finally:
         
         if conn:
             conn.close()
-            return {'cols': cols, 'data': ret}
-        else:
-            return None
+        return d
 
 
 def get_table(tbl_name, trim = False):
@@ -436,6 +446,7 @@ def get_user(ip, cursor, trim = False):
         for row in cursor:
             this_row = [s.strip() if hasattr(s, 'strip') else s for s in row] if trim else row
             d = dict(zip(cols, this_row))
+            break
     except psycopg2.DatabaseError, e:
         d = None
 
@@ -585,9 +596,11 @@ def pull_messages(ip):
     try:
         conn = db_connection()
         cursor = conn.cursor()
-        cursor.execute("BEGIN TRANSACTION; LOCK TABLE players IN ACCESS EXCLUSIVE MODE;")
 
-        results = query_results_to_list_of_dicts(get_query_results("SELECT * FROM messages WHERE ip=\'{0}\'".format(ip)))
+        cursor.execute("BEGIN TRANSACTION; LOCK TABLE messages IN ACCESS EXCLUSIVE MODE;")
+
+        results = query_results_to_list_of_dicts(get_query_results_("SELECT * FROM messages WHERE ip=\'{0}\'".format(ip), cursor))
+
         cursor.execute("DELETE FROM messages WHERE ip=%s", (ip,))
 
         cursor.execute("COMMIT;")
@@ -639,9 +652,12 @@ def add_coin_at_location(location_x, location_y):
         
         cursor = conn.cursor()
         cursor.execute("BEGIN TRANSACTION;")
+        cursor.execute("LOCK TABLE players IN ACCESS EXCLUSIVE MODE;")
         cursor.execute("LOCK TABLE coins IN ACCESS EXCLUSIVE MODE;")
         
-        if count_coins_at_location(location_x, location_y, cursor) > 0:
+        user_at_location = get_user_at(location_x, location_y, cursor)
+        coins_already_there = count_coins_at_location(location_x, location_y, cursor)
+        if (user_at_location is not None) or (coins_already_there > 0):
             success = False
         else:
             cursor.execute("INSERT INTO coins VALUES(%s, %s)", (location_x, location_y))
@@ -693,7 +709,8 @@ def increment_coin_record(ip, cursor):
     cursor.execute("UPDATE players SET coins=%s WHERE ip=%s", (current_count+1, ip))
     return current_count+1
 
-def attempt_move_to(ip, x_move, y_move):
+def attempt_move(ip, x_move, y_move):
+
     conn = None
     d = {'user_found': False, 'free_move': False}
     try:
@@ -704,49 +721,83 @@ def attempt_move_to(ip, x_move, y_move):
         cursor.execute("LOCK TABLE players IN ACCESS EXCLUSIVE MODE;")
         cursor.execute("LOCK TABLE coins IN ACCESS EXCLUSIVE MODE;")
         
+        # print "****************", 0, ip, x_move, y_move
+
         this_user = get_user(ip, cursor)
+
+        # print "****************", 1, this_user
 
         if this_user is not None:
             d['user_found'] = True
 
         if d['user_found']:
-            user_at_other_location = get_user_at(this_user['location_x']+x_move, this_user['location_y']+y_move, cursor)
+
+            location_x = this_user['location_x'] + x_move
+            location_y = this_user['location_y'] + y_move
+
+            user_at_other_location = get_user_at(location_x, location_y, cursor)
             if user_at_other_location is None:
                 d['free_move'] = True
             else:
                 d['free_move'] = False
 
+            # print "****************", 2, d['free_move']
+
             if d['free_move']:
                 # Unemcumbered Move
-                move_user_to(ip, this_user['location_x']+x_move, this_user['location_y']+y_move, cursor)
-                increment_move_record(ip, cursor)
+                ret = move_user_to(ip, location_x, location_y, cursor)
+
+                # print "****************", 3, 'mut', ret
+
+                ret = increment_move_record(ip, cursor)
+
+                # print "****************", 4, 'imr', ret
+
                 # step sound message
                 # inform of new position by message
-                add_message(ip, game_messages["user move"], cursor = cursor)
+                ret = add_message(ip, game_messages["user move"], cursor = cursor)
+
+                # print "****************", 5, 'msg add', ret
 
                 record_type = 'user move'
-                cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, str(this_user['location_x']+x_move), str(this_user['location_y']+y_move)])))
+                cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, str(location_x), str(location_y)])))
+
+                # print "****************", 6, 'hfr', cursor.rowcount
+                # print "****************", '6+', 'waiting to take coins'
 
                 num_coins = take_coins_at_location(location_x, location_y, cursor)                
+
+                # print "****************", '6++', 'count coins', num_coins
+
                 if num_coins > 0:
                     for k in range(num_coins):
-                        increment_coin_record(ip, cursor)
-                        cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages['collected coin'], '|'.join([ip, str(this_user['location_x']+x_move), str(this_user['location_y']+y_move)])))
-                        add_message(ip, game_messages["collected coin"], cursor = cursor)
+                        ret = increment_coin_record(ip, cursor)
+                        # print "****************", '7a', 'icr', ret
+                        ret = add_message(ip, game_messages["collected coin"], cursor = cursor)
+                        # print "****************", '7b', 'msg', ret
+                        cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages['collected coin'], record_type, '|'.join([ip, str(location_x), str(location_y)])))
+                        # print "****************", '7c', 'hfr', cursor.rowcount
             else:
                 # Collision
                 # grunts on both sides
-                increment_grope_record(ip, user_at_other_location['ip'], cursor)
+                ret = increment_grope_record(ip, user_at_other_location['ip'], cursor)
+                # print "****************", '7-a', 'igr', ret
                 add_message(ip, game_messages["collide"], cursor = cursor)
+                # print "****************", '7-b', 'msg1', ret
                 add_message(user_at_other_location['ip'], game_messages["collided into"], cursor = cursor)
+                # print "****************", '7-c', 'msg2', ret
 
                 record_type = 'player collision'
-                cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([str(ip), str(user_at_other_location['ip'])])))
+                cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([str(ip), str(this_user['location_x']), str(this_user['location_y']), str(user_at_other_location['ip']), str(location_x), str(location_y)])))
+                # print "****************", '7-d', 'hfr', cursor.rowcount
         
-        cursor.execute("COMMIT;")
-        get_query_results("SELECT * FROM players where ip=\'{0}\'".format(ip))
-        #conn.commit()
+        # print "****************", "SELECT * FROM players where ip=\'{0}\'".format(ip)
+        d['player'] = get_user(ip, cursor)
+        # print "****************", d['player']
            
+        cursor.execute("COMMIT;")
+        # print "****************", '8', 'COMMIT', cursor.rowcount
+
     except psycopg2.DatabaseError, e:
         if conn:
             conn.rollback()
@@ -756,7 +807,8 @@ def attempt_move_to(ip, x_move, y_move):
         
         if conn:
             conn.close()
-        d['msg'] = pull_messages(ip)
+            d['msg'] = pull_messages(ip)
+            # print "****************", d['msg']
         return d
 
 def parse_states(blah):

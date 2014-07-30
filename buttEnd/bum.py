@@ -2,6 +2,8 @@
 
 from flask import Flask, request, jsonify, Response, send_file, make_response, url_for
 
+from waitress import serve
+
 import db_mgmt
 import miscmisc
 import game
@@ -237,7 +239,7 @@ def show_user(ip):
 # 	#s = db_mgmt.generate_HTML_table(query_results, maps=maps)
 
 # 	if ret['success']:
-# 		ret['details'] = db_mgmt.attempt_move_to(ip, move_x, move_y)
+# 		ret['details'] = db_mgmt.attempt_move(ip, move_x, move_y)
 
 # 		#query_results = db_mgmt.get_query_results("SELECT * FROM players where ip=\'{0}\'".format(ip))
 # 		#s += "<br/><br/><br/>"
@@ -272,25 +274,16 @@ def move(move):
 	else:
 		ret['success'] = False
 
-	#query_results = db_mgmt.get_query_results("SELECT * FROM players where ip=\'{0}\'".format(ip))
-	#s = db_mgmt.generate_HTML_table(query_results, maps=maps)
-
 	if ret['success']:
-		ret['details'] = db_mgmt.attempt_move_to(ip, move_x, move_y)
+		ret['details'] = db_mgmt.attempt_move(ip, move_x, move_y)
 
-		#query_results = db_mgmt.get_query_results("SELECT * FROM players where ip=\'{0}\'".format(ip))
-		#s += "<br/><br/><br/>"
-		#s += db_mgmt.generate_HTML_table(query_results, maps=maps)
-		#s += "<br/><br/><br/>"
-		#query_results = db_mgmt.get_query_results("SELECT * FROM messages")
-		#s += db_mgmt.generate_HTML_table(query_results, maps=maps)
-
-	#return s, 200
 	return jsonify(ret), 200
 
 
 
 if __name__ == '__main__':
-    #app.run()
-    app.run(host='0.0.0.0', port=8000, debug=True)
-    #app.run(host='0.0.0.0', port=8000)
+	#app.run()
+	#app.run(host='0.0.0.0', port=8000)
+	#app.run(host='0.0.0.0', port=8000, debug=True)
+
+	serve(app, host='0.0.0.0', port=8000)

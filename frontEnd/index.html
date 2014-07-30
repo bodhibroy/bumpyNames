@@ -8,6 +8,8 @@
 		<meta name="author" content="">
 		<title>The web game</title>
 		<script type='text/javascript' href='./js/cookie.js'></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		
 		<style type="text/css">
 			.myButton {
 				-moz-box-shadow: 3px 4px 0px 0px #8a2a21;
@@ -51,6 +53,8 @@
 				top:1px;
 			}
 		</style>
+		
+		
 		<script>
 			var iconURL='';
 			function checkName() 
@@ -76,17 +80,31 @@
 					var gender = e.options[e.selectedIndex].value;
 					e = document.getElementById("class");
 					var _class = e.options[e.selectedIndex].value;
-					// Set cookie
-					document.cookie='username=' + document.someForm.username.value+';' 
-					document.cookie= 'race='+race + ';'; // path=/';
-					
-					//set AJAX data
-					var url='./demo.py?';
-					var content='username=' + document.someForm.username.value+'&gender='+gender+'&race='+race+'&class='+_class;//+'&profession='+professions;
+					e = document.getElementById("race");
+					var race = e.options[e.selectedIndex].value;
+					var icon = document.cookie.split(';')[0].split('=')[1].split('/')[4];
+					var ipaddr='';
+					var nameOfUser= document.someForm.username.value;
+					nameOfUser.replace(/(\||\/)/g, '');
+					$.getJSON('/get_my_ip', function(data){
+						//data is the JSON string
+						
+						ipaddr=data.ip;
+
+						var url='/add_or_update_user/';
+					var content=ipaddr + '/' + nameOfUser + '/' + icon + '/' + gender + '/' + race + '/' + _class + '/' + '0/1200/0/900';
+					console.log(content);
 					
 					// xmlhttp.open("GET",url+content,true);
 // 					xmlhttp.send();
-					window.location.href='./disclaimer.html';
+					//window.location.href='./disclaimer.html';
+					});
+
+					//set AJAX data
+					
+					 // /add_or_update_user/<ip>/<name>/<icon>/<sex>/<race>/<class_>/<min_x_>/<max_x_>/<min_y_>/<max_y_>
+										
+					
 				}
 			}
 			
@@ -118,7 +136,9 @@
 				content+='</table>';
 				
 				document.getElementById('icons').innerHTML=content;
+				document.getElementById('selectedIcon').innerHTML='<img src="./icons/'+ names[Math.round(Math.random()*46)] + '"</img>' + '(randomly selected. Please click one of the images below)';
 			}
+			
 		</script>
 	</head>
 

@@ -8,7 +8,7 @@ var bbby=100;
 var bbbx=WIDTH/2-50;
 var flag=1;
 var name=document.cookie.split('=')[1].toUpperCase();
-
+var ip='';
 
 window.addEventListener('keydown',performKeyDownEvent,true);
 
@@ -33,10 +33,11 @@ function startView(){
 		name=document.cookie.split(';')[0].split('=')[1];
 		canvas=document.getElementById("myCanvas");
 		context=canvas.getContext('2d');
+		var ip='';
 		draw();
 		reDraw();
 	}
-	else{alert("Very funny lah!");restartGame()};
+	else{alert("Very funny lah! You didn't put in your name.");restartGame()};
 }
 
 
@@ -66,13 +67,36 @@ function draw() {
 // 		context.closePath();
 		// Draw players
 
-		drawEach('blue'); // for _self_
+		drawALL(); 
 
 		//drawOthers(); 
 		
 		
 	}
 }
+
+function drawALL(){
+    $.getJSON('http://localhost:8000/game_state', function(data) {
+    //data is the JSON string
+	//console.log(data);
+	var players=data['players'];
+	//console.log(players)
+	for (var player in players){
+	    //console.log(players[player]['icon']);
+	    var iconURL='http://localhost:8000/icons/' + players[player]['icon'];
+	    var pos_x=players[player]['location_x'];
+	    var pos_y=players[player]['location_y'];
+	    var img = new Image;
+	    img.src = iconURL;
+	    context.drawImage(img,pos_x,pos_y);
+	}
+	//console.log('blah');
+
+    });
+    
+}
+
+
 
 // function drawEach(){
 // 	var urlIcon=document.cookie.split(';')[0].split('=')[1];
@@ -81,28 +105,29 @@ function draw() {
 // }
 
 // 
-function drawEach(colorStroke){
+function drawEach(){
 
 // 	console.log(x,y);
 	context.beginPath();
 // 	context.rect(x, y, Math.round(context.measureText(name).width)+10, 25);
-	context.arc(x,y,context.measureText(name).width/2+10,0,2*Math.PI);
-	context.fillStyle = '#FFFFFF';
-	context.fill();
-	context.lineWidth = 3;
-	context.strokeStyle = colorStroke;
-	context.stroke();
-	context.closePath();
-	context.beginPath();
-	if (document.cookie.split('=')[1].toUpperCase()!=name){
-		context.font="17px Serif";
-		context.fillStyle='#000000';
-	}
-	else{
-		context.font="20px Serif";
-		context.fillStyle='#FF0000';
-	}
-	context.fillText(name, x-Math.round(context.measureText(name).width/2), y+5);
+// 	context.arc(x,y,context.measureText(name).width/2+10,0,2*Math.PI);
+// 	context.fillStyle = '#FFFFFF';
+// 	context.fill();
+// 	context.lineWidth = 3;
+// 	context.strokeStyle = colorStroke;
+// 	context.stroke();
+// 	context.closePath();
+// 	context.beginPath();
+// 	if (document.cookie.split('=')[1].toUpperCase()!=name){
+// 		context.font="17px Serif";
+// 		context.fillStyle='#000000';
+// 	}
+// 	else{
+// 		context.font="20px Serif";
+// 		context.fillStyle='#FF0000';
+// 	}
+// 	context.fillText(name, x-Math.round(context.measureText(name).width/2), y+5);
+	
 	context.closePath();
 	
 }

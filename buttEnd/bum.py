@@ -84,6 +84,20 @@ def serve_icon(filename):
 	except Exception:
 		return "Not Found. (Really... I tried...)", 404
 
+@app.route("/sounds/<filename>")
+def serve_sound(filename):
+	try:
+		file_path = '../frontEnd/sounds/{0}'.format(filename)
+
+		response = send_file(file_path, mimetype="audio/wav", as_attachment=False, attachment_filename=None, add_etags=True)
+		expiry_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=360000)
+		response.headers["Cache-Control"] = "max-age=360000, must-revalidate"
+		response.headers["Expires"] = expiry_time.strftime("%a, %d %b %Y %H:%M:%S GMT")
+
+		return response
+	except Exception:
+		return "Not Found. (Really... I tried...)", 404
+
 @app.route("/js/<filename>")
 def serve_js(filename):
 	try:
@@ -101,12 +115,20 @@ def show_all():
 	return html_dump()
 
 @app.route("/get_icon_list/<my_filter>")
+@app.route("/get_icon_list")
 def get_icon_list(my_filter = ""):
 	icon_list = []
 	icon_path = os.path.join(os.getcwd(), '..', 'frontEnd', 'icons')
-	print icon_path
 	icon_list = [ f for f in os.listdir(icon_path) if os.path.isfile(os.path.join(icon_path,f)) and (my_filter.lower() in f.lower())]
 	return jsonify({'icons': icon_list}), 200
+
+@app.route("/get_sound_list/<my_filter>")
+@app.route("/get_sound_list")
+def get_sound_list(my_filter = ""):
+	sound_list = []
+	sound_path = os.path.join(os.getcwd(), '..', 'frontEnd', 'sounds')
+	sound_list = [ f for f in os.listdir(sound_path) if os.path.isfile(os.path.join(sound_path,f)) and (my_filter.lower() in f.lower())]
+	return jsonify({'sounds': sound_list}), 200
 
 
 @app.route("/game_stats")

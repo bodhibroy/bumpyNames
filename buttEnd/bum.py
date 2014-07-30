@@ -54,17 +54,25 @@ def index():
 def index1():
 	return send_file('../frontEnd/disclaimer.html')
 
-@app.route("/clear_and_seed_db")
+@app.route("/clear_and_seed_db/<password>")
 def clear_and_seed_db():
+	if password != KING_B0DH1_PA55W0RD:
+		# Authentication Failed
+		return get403ForbiddenMessage(), 403
+
 	db_mgmt.db_init()
 	db_mgmt.db_seed() # comment this line for actual runs of the game
 
-	return	"<div>Done.</div><br/>" + html_dump()
+	return	"<div>Ok. Done. Can I go now?</div><br/>" + html_dump(), 200
 
-@app.route("/clear_db")
+@app.route("/clear_db/<password>")
 def reset_db():
+	if password != KING_B0DH1_PA55W0RD:
+		# Authentication Failed
+		return get403ForbiddenMessage(), 403
+
 	db_mgmt.db_init()
-	return "Ok. Done. What do you want?", 200
+	return	"<div>Ok. Done. What more do you want?</div><br/>" + html_dump(), 200
 
 @app.route("/icons/<filename>")
 def serve_icon(filename):
@@ -230,48 +238,12 @@ def high_fidelity_records_html():
 	tables = ['high_fidelity_records']
 	return html_dump_queries([(tbl, "SELECT * FROM " + tbl) for tbl in tables])
 
+
 @app.route("/show_user/<ip>")
 def show_user(ip):
 	query_results = db_mgmt.get_query_results("SELECT * FROM players WHERE ip=\'{0}\'".format(ip), True)
 	return db_mgmt.generate_HTML_table(query_results, maps=maps), 200
 
-# @app.route("/move/<ip>/<move>")
-# def move(ip, move):
-# 	ret = {'success': True}
-
-# 	move_x = 0
-# 	move_y = 0
-
-# 	if move.upper() == "LEFT":
-# 		move_x = -1
-# 		move_y = 0
-# 	elif move.upper() == "RIGHT":
-# 		move_x = 1
-# 		move_y = 0
-# 	elif move.upper() == "DOWN":
-# 		move_x = 0
-# 		move_y = -1
-# 	elif move.upper() == "UP":
-# 		move_x = 0
-# 		move_y = 1
-# 	else:
-# 		ret['success'] = False
-
-# 	#query_results = db_mgmt.get_query_results("SELECT * FROM players where ip=\'{0}\'".format(ip))
-# 	#s = db_mgmt.generate_HTML_table(query_results, maps=maps)
-
-# 	if ret['success']:
-# 		ret['details'] = db_mgmt.attempt_move(ip, move_x, move_y)
-
-# 		#query_results = db_mgmt.get_query_results("SELECT * FROM players where ip=\'{0}\'".format(ip))
-# 		#s += "<br/><br/><br/>"
-# 		#s += db_mgmt.generate_HTML_table(query_results, maps=maps)
-# 		#s += "<br/><br/><br/>"
-# 		#query_results = db_mgmt.get_query_results("SELECT * FROM messages")
-# 		#s += db_mgmt.generate_HTML_table(query_results, maps=maps)
-
-# 	#return s, 200
-# 	return jsonify(ret), 200
 
 @app.route("/move/<move>")
 def move(move):
@@ -305,7 +277,11 @@ def move(move):
 
 if __name__ == '__main__':
 	#app.run()
-	#app.run(host='0.0.0.0', port=8000)
+	app.run(host='0.0.0.0', port=8000)
 	#app.run(host='0.0.0.0', port=8000, debug=True)
 
-	serve(app, host='0.0.0.0', port=8000)
+	#serve(app, host='0.0.0.0', port=8000)
+
+
+
+

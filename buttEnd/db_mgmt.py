@@ -1,24 +1,23 @@
 import psycopg2
 import random
-import sys
 import string
 
 from game import game_messages
 
 def db_connection():
-	return psycopg2.connect(host='localhost', port=5432, database='BumpyMaps', user='BumpyMaps', password='BumpBumpBump') 
+    return psycopg2.connect(host='localhost', port=5432, database='BumpyMaps', user='BumpyMaps', password='BumpBumpBump')
 
 def db_init(top_gg_limit = 5, top_avoider_limit = 10):
-    conn = db_connection() 
+    conn = db_connection()
     cursor = conn.cursor()
-    
+
     cursor.execute("DROP TABLE IF EXISTS players CASCADE;")
     cursor.execute("DROP TABLE IF EXISTS coins CASCADE;")
     cursor.execute("DROP TABLE IF EXISTS gropes CASCADE;")
     cursor.execute("DROP TABLE IF EXISTS messages CASCADE;")
     cursor.execute("DROP TABLE IF EXISTS game_state CASCADE;")
     cursor.execute("DROP TABLE IF EXISTS high_fidelity_records CASCADE;")
-    
+
     cursor.execute("""
         CREATE TABLE players
         (
@@ -74,7 +73,7 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
               ON UPDATE NO ACTION ON DELETE NO ACTION
         );
         """.format(top_gg_limit, top_avoider_limit))
-   
+
     cursor.execute("""
         CREATE TABLE high_fidelity_records
         (
@@ -84,7 +83,7 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
           time_stamp  timestamp DEFAULT CURRENT_TIMESTAMP
         );
         """.format(top_gg_limit, top_avoider_limit))
-   
+
     cursor.execute("""
         CREATE TABLE game_state
         (
@@ -94,7 +93,7 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
           dec_val double precision
         );
         """.format(top_gg_limit, top_avoider_limit))
-    
+
     cursor.execute("""
         CREATE OR REPLACE VIEW groper_grope_counts_ AS
             SELECT gropes.groper AS groper_ip, SUM(gropes.count) AS grope_count
@@ -136,7 +135,7 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
         CREATE OR REPLACE VIEW top_gropee_grope_counts AS
             SELECT * FROM gropee_grope_counts
                 ORDER BY grope_count DESC, name
-                LIMIT {0};        
+                LIMIT {0};
         """.format(top_gg_limit, top_avoider_limit))
 
     cursor.execute("""
@@ -169,32 +168,32 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
 
 
 def db_seed(num_rnd = 10, p_g = 0.25, p_gv1 = 0.2, p_gv2 = 0.35):
-    conn = db_connection() 
+    conn = db_connection()
     cursor = conn.cursor()
-    
+
     def rnd_icon():
         L0 = ["AnimalIcons_Elephant_32x32.png", "Animal_Icons_bull.png", "Animal_Icons_duck.png", "Animal_Icons_lion.png", "Animal_Icons_shark.png", "AnimalIcons_Giraffe_32x32.png", "Animal_Icons_bulldog.png", "Animal_Icons_eagle.png", "Animal_Icons_monkey.png", "Animal_Icons_sheep.png", "AnimalIcons_Gorilla_32x32.png", "Animal_Icons_butterfly.png", "Animal_Icons_elephant.png", "Animal_Icons_moose.png", "Animal_Icons_snake.png", "AnimalIcons_Lion_32x32.png", "Animal_Icons_cat.png", "Animal_Icons_fish.png", "Animal_Icons_mouse.png", "Animal_Icons_tiger.png", "AnimalIcons_Zebra_32x32.png", "Animal_Icons_chicken.png", "Animal_Icons_fox.png", "Animal_Icons_owl.png", "Animal_Icons_turkey.png", "Animal_Icons_alligator.png", "Animal_Icons_cow.png", "Animal_Icons_frog.png", "Animal_Icons_panda.png", "Animal_Icons_turtle.png", "Animal_Icons_ant.png", "Animal_Icons_crab.png", "Animal_Icons_giraffe.png", "Animal_Icons_penguin.png", "Animal_Icons_wolf.png", "Animal_Icons_bat.png", "Animal_Icons_crocodile.png", "Animal_Icons_gorilla.png", "Animal_Icons_pig.png", "Animal_Icons_bear.png", "Animal_Icons_deer.png", "Animal_Icons_hippo.png", "Animal_Icons_rabbit.png", "Animal_Icons_bee.png", "Animal_Icons_dog.png", "Animal_Icons_horse.png", "Animal_Icons_rhino.png", "Animal_Icons_bird.png", "Animal_Icons_donkey.png", "Animal_Icons_insect.png", "Animal_Icons_rooster.png"];
         #L = ["./icons/{0}".format(s) for s in L0]
         L = L0
         return L[random.randint(0,len(L)-1)]
-    
+
     def rnd_sex():
         L = ['Male', 'Female', 'Female PhD']
         return L[random.randint(0,len(L)-1)]
-    
+
     def rnd_race():
         L = ['Human', 'Elf', 'Dwarf', 'Orc', 'Gnome', 'Otter']
         return L[random.randint(0,len(L)-1)]
-    
+
     def rnd_class():
         L = ['Bee Keeper', 'Snake Charmer', 'Hog Farmer', 'Baby Elephant Wrangler', 'XMM']
         return L[random.randint(0,len(L)-1)]
-    
+
     cursor.execute("""INSERT INTO players VALUES ('10.0.0.1', 'Big Bodhi', '{0}', 'Male', 'Otter', 'Chef', '0', '0', 0);""".format(rnd_icon()))
     cursor.execute("""INSERT INTO players VALUES ('10.0.0.2', 'Zen Chia Zhong Da', '{0}', 'Male', 'Gnome', 'XMM Herder', '0', '3', 1);""".format(rnd_icon()))
 
-    base_people = """INSERT INTO players VALUES ('10.0.0.{0}', 'Player {1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', {8});""" 
-    
+    base_people = """INSERT INTO players VALUES ('10.0.0.{0}', 'Player {1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', {8});"""
+
     for k in range(num_rnd):
         cursor.execute(base_people.format(101+k, k+1, rnd_icon(), rnd_sex(), rnd_race(), rnd_class(), random.randint(0,25), random.randint(0,25), random.randint(0,5)))
 
@@ -212,7 +211,7 @@ def db_seed(num_rnd = 10, p_g = 0.25, p_gv1 = 0.2, p_gv2 = 0.35):
             cursor.execute("INSERT INTO gropes VALUES ('10.0.0.{0}', '10.0.0.1', {1});".format(101+k1,random.randint(1,10)))
         if random.random() <= p_g:
             cursor.execute("INSERT INTO gropes VALUES ('10.0.0.{0}', '10.0.0.2', {1});".format(101+k1,random.randint(1,10)))
-            
+
         for k2 in range(num_rnd):
             if k1 == k2:
                 continue
@@ -224,14 +223,14 @@ def db_seed(num_rnd = 10, p_g = 0.25, p_gv1 = 0.2, p_gv2 = 0.35):
     cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, 'DB randomly seeded.'))
     conn.commit()
     conn.close()
-    
+
 
 
 def quick_query(q):
     conn = None
     ret_code = 0
     try:
-        conn = db_connection() 
+        conn = db_connection()
         cursor = conn.cursor()
         cursor.execute(q)
         conn.commit()
@@ -246,7 +245,7 @@ def quick_query_safer(q, data):
     conn = None
     ret_code = 0
     try:
-        conn = db_connection() 
+        conn = db_connection()
         cursor = conn.cursor()
         cursor.execute(q, data)
         conn.commit()
@@ -265,7 +264,7 @@ def get_query_results_(query, cursor, trim = False):
         cols = [cn[0] for cn in cursor.description]
         for row in cursor:
             this_row = [s.strip() if hasattr(s, 'strip') else s for s in row] if trim else row
-            ret.append(this_row)    
+            ret.append(this_row)
     except psycopg2.DatabaseError, e:
         if conn:
             print e
@@ -278,15 +277,15 @@ def get_query_results(query, trim = False):
     conn = None
     d = None
     try:
-        conn = db_connection() 
+        conn = db_connection()
         cursor = conn.cursor()
         d = get_query_results_(query, cursor, trim)
-    
+
     except psycopg2.DatabaseError, e:
         pass
 
     finally:
-        
+
         if conn:
             conn.close()
         return d
@@ -419,7 +418,7 @@ def generate_HTML_table(query_results, border = 1, table_class='class_table', th
         L.append(str(col_name))
         L.append("</TH>")
     L.append("</TR>\n\n")
-    
+
     # TD
     row_num = 0
     for row in query_results['data']:
@@ -464,7 +463,7 @@ def get_user_at(x_pos, y_pos, cursor, trim = False):
             break
     except psycopg2.DatabaseError, e:
         d = None
-        
+
     return d
 
 
@@ -532,10 +531,10 @@ def add_or_update_user(ip, name, icon, sex, race, class_, min_x, max_x, min_y, m
             if existing_user is None:
                 msg = 'add user'
 
-            cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, name, icon, sex, race, class_])))
+            cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, name, icon, sex, race, class_, str(ret['location_x']), str(ret['location_y'])])))
 
             conn.commit()
-               
+
         except psycopg2.DatabaseError, e:
             if conn:
                 conn.rollback()
@@ -584,14 +583,14 @@ def pull_messages(ip):
 
         cursor.execute("COMMIT;")
         #conn.commit()
-           
+
     except psycopg2.DatabaseError, e:
         if conn:
             conn.rollback()
         return []
-        
+
     finally:
-        
+
         if conn:
             conn.close()
         return results
@@ -628,12 +627,12 @@ def add_coin_at_location(location_x, location_y):
     success = True
     try:
         conn = db_connection()
-        
+
         cursor = conn.cursor()
         cursor.execute("BEGIN TRANSACTION;")
         cursor.execute("LOCK TABLE players IN ACCESS EXCLUSIVE MODE;")
         cursor.execute("LOCK TABLE coins IN ACCESS EXCLUSIVE MODE;")
-        
+
         user_at_location = get_user_at(location_x, location_y, cursor)
         coins_already_there = count_coins_at_location(location_x, location_y, cursor)
         if (user_at_location is not None) or (coins_already_there > 0):
@@ -645,14 +644,14 @@ def add_coin_at_location(location_x, location_y):
             cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([str(location_x), str(location_y)])))
 
         cursor.execute("COMMIT;")
-           
+
     except psycopg2.DatabaseError, e:
         if conn:
             conn.rollback()
         success = False
-        
+
     finally:
-        
+
         if conn:
             conn.close()
         return success
@@ -662,7 +661,7 @@ def get_grope_count_insert_if_not_present(ip1, ip2, cursor):
     found = False
     for r in cursor:
         found = r[0]
-        
+
     count = 0
     if found:
         cursor.execute("SELECT count from gropes WHERE groper=%s AND gropee=%s", (ip1, ip2))
@@ -693,12 +692,12 @@ def attempt_move(ip, x_move, y_move):
     d = {'user_found': False, 'free_move': False}
     try:
         conn = db_connection()
-        
+
         cursor = conn.cursor()
         cursor.execute("BEGIN TRANSACTION;")
         cursor.execute("LOCK TABLE players IN ACCESS EXCLUSIVE MODE;")
         cursor.execute("LOCK TABLE coins IN ACCESS EXCLUSIVE MODE;")
-        
+
         this_user = get_user(ip, cursor)
 
         if this_user is not None:
@@ -726,9 +725,9 @@ def attempt_move(ip, x_move, y_move):
                 ret = add_message(ip, game_messages["user move"], cursor = cursor)
 
                 record_type = 'user move'
-                cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, str(location_x), str(location_y)])))
+                cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, str(this_user['location_x']), str(this_user['location_y']), str(location_x), str(location_y)])))
 
-                num_coins = take_coins_at_location(location_x, location_y, cursor)                
+                num_coins = take_coins_at_location(location_x, location_y, cursor)
 
                 if num_coins > 0:
                     for k in range(num_coins):
@@ -744,16 +743,16 @@ def attempt_move(ip, x_move, y_move):
 
                 record_type = 'player collision'
                 cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([str(ip), str(this_user['location_x']), str(this_user['location_y']), str(user_at_other_location['ip']), str(location_x), str(location_y)])))
-        
+
         cursor.execute("COMMIT;")
 
     except psycopg2.DatabaseError, e:
         if conn:
             conn.rollback()
         d = {'user_found': False, 'free_move': False}
-        
+
     finally:
-        
+
         if conn:
             conn.close()
         return d
@@ -777,7 +776,7 @@ def parse_states(blah):
 
         if success:
             new_state.append((str(property_), str(str_val), int(int_val), float(dec_val)))
-    
+
     return new_state
 
 
@@ -786,19 +785,21 @@ def set_game_state(new_state):
     success = True
     try:
         conn = db_connection()
-        
+
         cursor = conn.cursor()
         cursor.execute("DELETE FROM game_state")
         cursor.executemany("INSERT INTO game_state VALUES(%s, %s, %s, %s)", new_state)
         conn.commit()
-           
+
     except psycopg2.DatabaseError, e:
         if conn:
             conn.rollback()
         success = False
-        
+
     finally:
-        
+
         if conn:
             conn.close()
         return success
+
+

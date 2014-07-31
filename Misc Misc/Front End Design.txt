@@ -8,6 +8,10 @@ Get icons via
 or
 	@app.route("/get_icon_list/<filter>")
 
+You might want to have a different icon list for different classes... No not... =P
+
+Or you could make the game offensive and sexist with different classes for males and females. =P
+
 (User hits submit button)
 
 Add/update user via

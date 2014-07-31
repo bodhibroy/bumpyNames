@@ -529,7 +529,7 @@ def add_or_update_user(ip, name, icon, sex, race, class_, min_x, max_x, min_y, m
 
             record_type = 'update user'
             if existing_user is None:
-                msg = 'add user'
+                record_type = 'add user'
 
             cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, name, icon, sex, race, class_, str(ret['location_x']), str(ret['location_y'])])))
 

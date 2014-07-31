@@ -1,0 +1,67 @@
+A possible front-end design:
+----------------------------
+
+(User lands at sign in screen)
+
+Get icons via
+	@app.route("/get_icon_list/")
+or
+	@app.route("/get_icon_list/<filter>")
+
+(User hits submit button)
+
+Add/update user via
+	@app.route("/add_or_update_user/<name>/<icon>/<sex>/<race>/<class_>/<min_x_>/<max_x_>/<min_y_>/<max_y_>/")
+go to next page only on successful callback (nest the response crap in the callback function and disable the button).
+
+Even if the browser has a cookie, let the user update his/her info. He/she will start at the same place and with the current score.
+
+************************************************************************************
+
+(King Bodhi Control Page)
+
+control.html will be accessible via: @app.route("/control/<password>/")
+
+To reset the DB, use:
+	@app.route("/clear_db/<password>")
+or use
+	@app.route("/clear_and_seed_db/<password>")
+for testing...
+
+To set the global game state: @app.route("/set_game_state/<blah>/<password>")
+
+You may want to have a "game stopped" flag that clients check for. No input is accepted and nothing happens on the client end if the game is stopped.
+
+To add coins: @app.route("/add_coin/<location_x>/<location_y>/<password>")
+
+Coin Add Possibility:
+- Have an input field to control the frequency of coins being randomly added.
+- Each time the callback function is called, setWindowTimeout to the current frequency.
+- As for the add coin AJAX call, choose a random empty location based on the current game state.
+- It may be reasonable to let an add coin call fail. (Some time people just move into those spaces.)
+
+
+************************************************************************************
+
+(Game page)
+
+Coins icon: coins_stack.png or get from /get_coin_icon
+
+Get sound list via:
+	@app.route("/get_sound_list/<my_filter>")
+or
+	@app.route("/get_sound_list")
+
+Get game state: @app.route("/game_state/") returns where players are, their stats, where the coins are and the global game state.
+
+Make move: @app.route("/move/<move>") with LEFT/RIGHT/UP/DOWN as possible moves
+
+
+Possible Game Loop:
+- Poll game state and on the activation of the callback
+	* Redraw every one on screen
+	* Redraw coins
+	* Make the relevant sounds based on the messages (bumped into someone, bumped into, moved, coin collected)
+- With each move, on activation of the callback
+	* Redraw player (and everyone else based on known data)
+	* Make the relevant sounds based on the messages (bumped into someone, bumped into, moved, coin collected)

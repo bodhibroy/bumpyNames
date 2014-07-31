@@ -22,11 +22,11 @@ def db_init(top_gg_limit = 5, top_avoider_limit = 10):
         CREATE TABLE players
         (
           ip inet NOT NULL,
-          name varchar(20),
+          name varchar(50),
           icon varchar(255),
-          sex varchar(10),
-          race varchar(20),
-          class varchar(30),
+          sex varchar(50),
+          race varchar(50),
+          class varchar(50),
           location_x integer,
           location_y integer,
           coins integer DEFAULT 0,

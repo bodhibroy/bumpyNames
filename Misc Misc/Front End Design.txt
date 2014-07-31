@@ -52,6 +52,17 @@ Get sound list via:
 or
 	@app.route("/get_sound_list")
 
+I'd suggest the following lists:
+	/get_sound_list/gruntA
+for collisions into others
+	/get_sound_list/gruntB
+for collisions caused by others
+	/get_sound_list/money
+for coin collection
+	/get_sound_list/move
+for steps taken...
+
+
 Get game state: @app.route("/game_state/") returns where players are, their stats, where the coins are and the global game state.
 
 Make move: @app.route("/move/<move>") with LEFT/RIGHT/UP/DOWN as possible moves
@@ -62,6 +73,7 @@ Possible Game Loop:
 	* Redraw every one on screen
 	* Redraw coins
 	* Make the relevant sounds based on the messages (bumped into someone, bumped into, moved, coin collected)
-- With each move, on activation of the callback
-	* Redraw player (and everyone else based on known data)
+- With each move, on activation of the callback (note that the game state is pulled as well)
+	* Redraw every one on screen
+	* Redraw coins
 	* Make the relevant sounds based on the messages (bumped into someone, bumped into, moved, coin collected)

@@ -213,16 +213,18 @@ def add_coin(location_x, location_y, password):
 # Reading the Game State
 #####################################################################
 
-@app.route("/game_state/")
-def game_state():
+def get_current_game_state():
 	ip = request.remote_addr
 	ret1 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM players"))
 	ret2 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM game_state"))
 	ret3 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM coins"))
-	d = {'players': ret1, 'game': ret2, 'coins': ret3, 'messages': []}
-	if ip is not None:
-		d['messages'] = db_mgmt.pull_messages(ip)
-	return jsonify(d), 200
+	ret4 = db_mgmt.pull_messages(ip)
+	ret = {'players': ret1, 'game': ret2, 'coins': ret3, 'messages': ret4}
+	return ret
+
+@app.route("/game_state/")
+def game_state():
+	return jsonify(get_current_game_state()), 200
 
 #####################################################################
 # End User Game Control
@@ -241,7 +243,7 @@ def add_or_update_user(name, icon, sex, race, class_, min_x_, max_x_, min_y_, ma
 @app.route("/move/<move>")
 def move(move):
 	ip = request.remote_addr
-	ret = {'success': True}
+	ret = {'success': True, 'game_state': None}
 
 	move_x = 0
 	move_y = 0
@@ -263,6 +265,7 @@ def move(move):
 
 	if ret['success']:
 		ret['details'] = db_mgmt.attempt_move(ip, move_x, move_y)
+		ret['game_state'] = get_current_game_state()
 
 	return jsonify(ret), 200
 

@@ -259,19 +259,12 @@ def quick_query_safer(q, data):
 def get_query_results_(query, cursor, trim = False):
     ret = []
     cols = []
-    try:
-        cursor.execute(query)
-        cols = [cn[0] for cn in cursor.description]
-        for row in cursor:
-            this_row = [s.strip() if hasattr(s, 'strip') else s for s in row] if trim else row
-            ret.append(this_row)
-    except psycopg2.DatabaseError, e:
-        if conn:
-            print e
-            conn.rollback()
-        return None
-    finally:
-        return {'cols': cols, 'data': ret}
+    cursor.execute(query)
+    cols = [cn[0] for cn in cursor.description]
+    for row in cursor:
+        this_row = [s.strip() if hasattr(s, 'strip') else s for s in row] if trim else row
+        ret.append(this_row)
+    return {'cols': cols, 'data': ret}
 
 def get_query_results(query, trim = False):
     conn = None
@@ -280,12 +273,9 @@ def get_query_results(query, trim = False):
         conn = db_connection()
         cursor = conn.cursor()
         d = get_query_results_(query, cursor, trim)
-
     except psycopg2.DatabaseError, e:
-        pass
-
+        conn.rollback()
     finally:
-
         if conn:
             conn.close()
         return d

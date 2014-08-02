@@ -82,21 +82,25 @@
 					var _class = e.options[e.selectedIndex].value;
 					e = document.getElementById("race");
 					var race = e.options[e.selectedIndex].value;
-					var icon = document.cookie.split(';')[0].split('=')[1].split('/')[4];
-					var ipaddr='';
+					// var icon = document.cookie.split(';')[0].split('=')[1].split('/')[4];
+
+					var iconL = iconURL.split('/')
+					var icon = iconL[iconL.length-1]
+
 					var nameOfUser= document.someForm.username.value;
 					nameOfUser.replace(/(\||\/)/g, '');
-					var url='/add_or_update_user/';
-					var content=nameOfUser + '/' + icon + '/' + gender + '/' + race + '/' + _class;// + '/';// + '0/40/0/20';
-					$.getJSON(url+content, function(data){
+
+					var url='/add_or_update_user/' + nameOfUser + '/' + icon + '/' + gender + '/' + race + '/' + _class + '/0/40/0/20';
+
+					$.getJSON(url, function(data){
 						//data is the JSON string
 // 						ipaddr=data.ip;
 // 						console.log(content);
 					
 						if (data.success) {
-							window.location.href='/disclaimer.html/';
+							window.location.href='/disclaimer.html';
 						} else {
-							alert('player status did not get updated in the system');
+							alert('Error: Reload and try again?');
 						}
 					});
 
@@ -111,7 +115,6 @@
 			function imageClick(_src){
 // 				console.log(_src);
 				iconURL=_src;
-				document.cookie='iconURL=' + iconURL;
 				document.getElementById('selectedIcon').innerHTML='<img src="' + iconURL + '">';
 			}
 			

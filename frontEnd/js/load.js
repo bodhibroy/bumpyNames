@@ -5,15 +5,15 @@ var dx=32,dy=32;
 var serverIP='192.168.0.12:8000';
 window.addEventListener('keydown',performKeyDownEvent,true);
 
+var game_state = null
+var message_queue = []
+
 function startView(){
-	if(document.cookie.split('=')[1]){
-		canvas=document.getElementById("myCanvas");
-		context=canvas.getContext('2d');
-		var ip='';
-		draw();
-		reDraw();
-	}
-	else{alert("Very funny lah! You didn't put in your name.");restartGame()};
+	canvas=document.getElementById("myCanvas");
+	context=canvas.getContext('2d');
+	var ip='';
+	draw();
+	reDraw();
 }
 
 
@@ -21,6 +21,7 @@ function draw() {
 	context.beginPath();
 	context.clearRect(0, 0, WIDTH, HEIGHT);
 	drawALL();
+	context.closePath();
 }
 
 function drawALL(){
@@ -29,8 +30,8 @@ function drawALL(){
 	var players=data['players'];
 	for (var player in players){
 	    var iconURL='http://'+ serverIP+ '/icons/' + players[player]['icon'];
-	    var pos_x=players[player]['location_x'];
-	    var pos_y=players[player]['location_y'];
+	    var pos_x=players[player]['location_x'] * dx;
+	    var pos_y=players[player]['location_y'] * dy;
 	    var img = new Image;
 	    img.src = iconURL;
 	    context.drawImage(img,pos_x,pos_y);
@@ -40,31 +41,26 @@ function drawALL(){
 }
 
 function performKeyDownEvent(event){
+	move = ''
 	switch (event.keyCode){
 		case 38:  /* Up arrow was pressed */
-			if (y - dy > 0){
-				y -= dy;
-				
-			}
+			move = 'UP'
 		break;
 		case 40:  /* Down arrow was pressed */
-			if (y + dy < HEIGHT){
-				y += dy;
-				
-			}
+			move = 'DOWN'
 		break;
 		case 37:  /* Left arrow was pressed */
-			if (x - dx-10> 0){
-				x -= dx;
-				
-			}
-		
+			move = 'LEFT'
 		break;
 		case 39:  /* Right arrow was pressed */
-			if (x + dx  < WIDTH){
-				x += dx;
-			}
+			move = 'RIGHT'
 		break;
+	}
+	console.log(move)
+	if (move != '') {
+		$.getJSON('/move/' + move, function(data){
+			game_state = data.game_state
+		});
 	}
 }
 
@@ -82,3 +78,7 @@ function updateScores(){
 	var leaderBoard=document.getElementById('ldb');
 	// update LeaderBoard
 }
+
+$.getJSON('/game_state', function(data){
+	game_state = data
+});

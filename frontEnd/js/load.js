@@ -2,7 +2,7 @@ var canvas;
 var context;
 var HEIGHT=25, WIDTH=40;
 var dx=32,dy=32;
-var serverIP='http://192.168.0.12:8000';
+var serverIP='192.168.0.12:8000';
 window.addEventListener('keydown',performKeyDownEvent,true);
 
 function startView(){

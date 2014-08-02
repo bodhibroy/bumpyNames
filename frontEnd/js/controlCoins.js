@@ -1,3 +1,6 @@
+// /set_game_state/game%20stop%2C"STOOOOOOOOP"%2C1%2C1/
+// /set_game_state/
+
 function pushCoin(){
 	$.getJSON('/game_state', function(data){
 		game_state = data
@@ -10,11 +13,11 @@ function pushCoin(){
 			}
 		}
 		for (var coin in coins){
-			locations[coin['location_x']['location_y']=1
+			locations[coin['location_x']['location_y']]=1
 		}
 		
 		for (var player in players){
-			locations[coin['location_x']['location_y']=1
+			locations[coin['location_x']['location_y']]=1
 		}
 		var flag=0;
 		while (flag==0){
@@ -28,6 +31,7 @@ function pushCoin(){
 				pushCoinURL='/add_coin/'+ randomX + '/' + randomY + '/' + password
 				$.getJSON(pushCoinURL,function(){
 				});
+			}
 		}
 	});
 }

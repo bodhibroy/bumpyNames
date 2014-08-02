@@ -86,7 +86,7 @@
 					var ipaddr='';
 					var nameOfUser= document.someForm.username.value;
 					nameOfUser.replace(/(\||\/)/g, '');
-					$.getJSON('/get_my_ip', function(data){
+					$.getJSON('/get_my_ip/', function(data){
 						//data is the JSON string
 						
 						ipaddr=data.ip;
@@ -97,7 +97,7 @@
 					
 					xmlhttp.open("GET",url+content,true);
 					xmlhttp.send();
-					window.location.href='/disclaimer.html';
+					window.location.href='/disclaimer.html/';
 					});
 
 					//set AJAX data

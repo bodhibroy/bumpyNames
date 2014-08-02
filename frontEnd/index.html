@@ -90,7 +90,7 @@
 						//data is the JSON string
 						ipaddr=data.ip;
 						var url='/add_or_update_user/';
-					var content=nameOfUser + '/' + icon + '/' + gender + '/' + race + '/' + _class + '/';// + '0/40/0/20';
+					var content=nameOfUser + '/' + icon + '/' + gender + '/' + race + '/' + _class;// + '/';// + '0/40/0/20';
 					console.log(content);
 					
 					xmlhttp.open("GET",url+content,true);

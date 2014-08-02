@@ -65,6 +65,11 @@ function getMoveSound() {
 function randomArrayElement(arr) {
 	return arr[Math.floor(Math.random()*arr.length)]
 }
+function playSound(filename, volume) {
+	var snd = new Audio("/sounds/" + filename); // buffers automatically when created
+	snd.volume = volume
+	snd.play();
+}
 // ------------------------------------------------------
 // ------------------------------------------------------
 
@@ -89,6 +94,36 @@ function updateGameState(){
 }
 
 function processMessages() {
+	msg = message_queue
+	message_queue = []
+
+	for (var i = 0; i < msg.length; i++) {
+		game_messages = []
+		game_messages[1] = "user move"
+		game_messages[2] = "collide"
+		game_messages[3] = "collided into"
+		game_messages[4] = "collected coin"
+		console.log(game_messages[msg[i].message])
+		switch (msg[i].message){
+			case 1:
+				// game_messages["user move"] = 1
+				playSound(getMoveSound(), 0.5)
+			break;
+			case 2:
+				// game_messages["collide"] = 2
+				playSound(getCollideSound(), 1)
+			break;
+			case 3:
+				// game_messages["collided into"] = 3
+				playSound(getCollidedIntoSound(), 1)
+			break;
+			case 4:
+				// game_messages["collected coin"] = 4
+				playSound(getCollectCoinSound(), 1)
+			break;
+		}
+	}
+
 	// ****** BODHI!!!! *****
 	// Play sounds and other things
 	// ****** BODHI!!!! *****
@@ -128,6 +163,12 @@ function performKeyDownEvent(event){
 		return
 	}
 
+	for (var i = 0; i < game_state.game.length; i++) {
+		if (game_state.game[i].property == "game stop") {
+			return
+		}
+	}
+
 	move = ''
 	switch (event.keyCode){
 		case 38:  /* Up arrow was pressed */
@@ -151,11 +192,18 @@ function performKeyDownEvent(event){
 			}
 		break;
 	}
-	console.log(move + "|" + me.location_x + "|" + me.location_y)
 	if (move != '') {
 		active_move = true
 		$.getJSON('/move/' + move, function(data){
 			game_state = data.game_state
+
+			if (game_state != null) {
+				for (var i = 0; i < game_state.messages.length; i++) {
+					message_queue.push(game_state.messages[i])
+				}
+				game_state.messages = []
+			}
+
 			active_move = false
 
 			// ****** BODHI!!!! *****
@@ -181,5 +229,5 @@ updateGameState()
 function startView() {
 	canvas=document.getElementById("myCanvas");
 	context=canvas.getContext('2d');
-	setInterval(updateGameState, 100);
+	setInterval(updateGameState, 50);
 }

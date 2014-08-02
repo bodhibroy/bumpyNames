@@ -49,7 +49,7 @@ def serve_disclaimer_page():
 @app.route("/control/")
 @app.route("/control/<password>/")
 def serve_control_page(password = None):
-    if password != KING_B0DH1_PA55W0RD:
+    if (password != KING_B0DH1_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
         # Authentication Failed
         return get403ForbiddenMessage(), 403
     else:
@@ -103,7 +103,7 @@ def serve_js(filename):
 @app.route("/clear_and_seed_db/")
 @app.route("/clear_and_seed_db/<password>")
 def clear_and_seed_db(password = None):
-    if password != KING_B0DH1_PA55W0RD:
+    if (password != KING_B0DH1_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
         # Authentication Failed
         return get403ForbiddenMessage(), 403
 
@@ -115,7 +115,7 @@ def clear_and_seed_db(password = None):
 @app.route("/clear_db/")
 @app.route("/clear_db/<password>")
 def reset_db(password = None):
-    if password != KING_B0DH1_PA55W0RD:
+    if (password != KING_B0DH1_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
         # Authentication Failed
         return jsonify({'success': False, 'authenticated': False}), 403
 
@@ -166,7 +166,7 @@ def set_game_state(password = None, blah = ""):
     #          will clear the game_state table and insert rows
     #          ('p1', '', 2, 5) and ('p2', 'stuff', 2, 5.888)
 
-    if password != KING_B0DH1_PA55W0RD:
+    if (password != KING_B0DH1_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
         # Authentication Failed
         return jsonify({'success': False, 'authenticated': False}), 403
 
@@ -185,9 +185,10 @@ def set_game_state(password = None, blah = ""):
     d['game_state'] = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM game_state"))
     return jsonify(d), 200
 
+@app.route("/add_coin/<location_x>/<location_y>/")
 @app.route("/add_coin/<location_x>/<location_y>/<password>")
-def add_coin(location_x, location_y, password):
-    if password != KING_B0DH1_PA55W0RD:
+def add_coin(location_x, location_y, password = None):
+    if (password != KING_B0DH1_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
         # Authentication Failed
         return jsonify({'success': False, 'authenticated': False}), 403
 

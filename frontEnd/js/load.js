@@ -2,7 +2,7 @@ var canvas;
 var context;
 var HEIGHT=25, WIDTH=40;
 var dx=32,dy=32;
-
+var serverIP='';
 window.addEventListener('keydown',performKeyDownEvent,true);
 
 function startView(){
@@ -24,11 +24,11 @@ function draw() {
 }
 
 function drawALL(){
-    $.getJSON('http://localhost:8000/game_state', function(data) {
+    $.getJSON('http://'+ serverIP+ '/game_state', function(data) {
     //data is the JSON string
 	var players=data['players'];
 	for (var player in players){
-	    var iconURL='http://localhost:8000/icons/' + players[player]['icon'];
+	    var iconURL='http://'+ serverIP+ '/icons/' + players[player]['icon'];
 	    var pos_x=players[player]['location_x'];
 	    var pos_y=players[player]['location_y'];
 	    var img = new Image;

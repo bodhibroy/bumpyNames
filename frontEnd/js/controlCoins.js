@@ -32,6 +32,15 @@ function pushCoin(){
 	
 }
 
+
+function validateFreq() {
+	myFreq = document.someForm.freq.value
+	if (myFreq.match(/^\d+$/g) == null) {
+		document.someForm.freq.value = '2000'
+	}
+}
+
 function getNextInterarrivalTime() {
-	return 2000;
+	validateFreq();
+	return parseInt(document.someForm.freq.value);
 }

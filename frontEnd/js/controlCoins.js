@@ -10,7 +10,7 @@ function pushCoin(){
 			}
 		}
 		for (var coin in coins){
-			locations[coin['location_x']['location_y']=1
+			locations[coin['location_x']['location_y']]=1
 		}
 		
 		for (var player in players){
@@ -25,6 +25,7 @@ function pushCoin(){
 				
 				//get control password
 				password=window.location.href.split('control')[1].split['/'][1]
+				console.log(password)
 				pushCoinURL='/add_coin/'+ randomX + '/' + randomY + '/' + password
 				$.getJSON(pushCoinURL,function(){
 				});

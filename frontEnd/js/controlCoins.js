@@ -6,43 +6,43 @@ function pushCoin(){
 		game_state = data
 		coins = game_state['coins']
 		players = game_state['players']
-		var locations= new Array();
-		for (var i=0;i<18; i++){
-			for (var j=0;j<37;j++){
-				locations[i][j]=0;
-			}
-		}
-		for (var coin in coins){
-			locations[coin['location_x']['location_y']]=1
-		}
+		//var locations = []
 		
+		var randomX=Math.floor(Math.random()*38);
+		var randomY=Math.floor(Math.random()*19);
+		
+		var flag =0;
+		for (var i=0;i<coins.length; i++){
+			if (coins[i]['location_x'] == randomX && coins[i]['location_y'] == randomY)
+				flag = 1;
+				break;
+		}
+		if (flag==0)
 		for (var player in players){
-			locations[coin['location_x']['location_y']]=1
+			if (player['location_x']==randomX && player['location_y']==randomY)
+				flag = 1;
+				break;
 		}
-		var flag=0;
-		while (flag==0){
-			randomX=Math.Round(Math.random()*37)
-			randomY=Math.Round(Math.random()*18)
-			if (locations[randomX][randomY]==0){
-				// do something to place coin
-				
-				//get control password
-				password=window.location.href.split('control')[1].split['/'][1]
-				pushCoinURL='/add_coin/'+ randomX + '/' + randomY + '/' + password
-				$.getJSON(pushCoinURL,function(){
-				});
-			}
+		if (flag==0){
+			var pushCoinURL='/add_coin/' + randomX + '/' + randomY + '/';
+			$.getJSON(pushCoinURL);		
 		}
+		console.log(randomX,randomY);
+		//sleepforSomeSeconds();
 	});
+	setTimeout(pushCoin, getNextInterarrivalTime());
+	
 }
-
-function sleepforFiveSeconds(){
-	setTimeout(pushCoin(),3000);
-}
-
 
 
 function validateFreq() {
-	document.someForm.freq.value = '2000'
+	myFreq = document.someForm.freq.value
+	if (myFreq.match(/^\d+$/g) == null) {
+		document.someForm.freq.value = '2000'
+	}
 }
 
+function getNextInterarrivalTime() {
+	validateFreq();
+	return parseInt(document.someForm.freq.value);
+}

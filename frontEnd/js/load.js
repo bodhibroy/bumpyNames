@@ -225,7 +225,7 @@ function updateScores(){
 	var coins=[]
 	var playersList=game_state.players
 	for (var i=0; i< playersList.length; i++){
-		coins.push({ip: playersList[i].ip,name: playersList[i].name,coins: playersList[i].coins})
+		coins.push({ip: playersList[i].ip, name: playersList[i].name, icon: playersList[i].icon, coins: playersList[i].coins})
 	}
 	finalScores=coins.sort(function (o1,o2){
 		return o1.coins-o2.coins;
@@ -233,11 +233,12 @@ function updateScores(){
 
 	var content = ''
 	content+='<table>';
-	content+='<tr><th align=center><u>Player</u></th><th align=center><img src=\'/icons/' + coin_icon + '\'></th></tr>';
+	content+='<tr><th align=center colspan=2><u>Player</u></th><th align=center><img src=\'/icons/' + coin_icon + '\'></th></tr>';
 	for (var i=finalScores.length -1 ;i>=0; i--){
 		content+='<tr>'
+		content+='<td><img src=\'/icons/' + finalScores[i].icon + '\'></td>'
 		content+='<td>' + finalScores[i].name + '</td>'
-		content+='<td>' + finalScores[i].coins + '</td>'
+		content+='<td align=center>' + finalScores[i].coins + '</td>'
 		content+='</tr>'
 	}
 	content+='</table>'
@@ -250,5 +251,5 @@ updateGameState()
 function startView() {
 	canvas=document.getElementById("myCanvas");
 	context=canvas.getContext('2d');
-	setInterval(updateGameState, 100);
+	setInterval(updateGameState, 200);
 }

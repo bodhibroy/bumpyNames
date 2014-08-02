@@ -646,6 +646,33 @@ def add_coin_at_location(location_x, location_y):
             conn.close()
         return success
 
+def reset_coin_collection_scores():
+    conn = None
+    success = True
+    try:
+        conn = db_connection()
+
+        cursor = conn.cursor()
+        cursor.execute("BEGIN TRANSACTION;")
+        cursor.execute("LOCK TABLE players IN ACCESS EXCLUSIVE MODE;")
+
+        cursor.execute("UPDATE players SET coins=0")
+
+        record_type = 'misc'
+        cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, 'Reset coin scores.'))
+        cursor.execute("COMMIT;")
+
+    except psycopg2.DatabaseError, e:
+        if conn:
+            conn.rollback()
+        success = False
+
+    finally:
+
+        if conn:
+            conn.close()
+        return success
+
 def get_grope_count_insert_if_not_present(ip1, ip2, cursor):
     cursor.execute("SELECT EXISTS (SELECT 1 from gropes WHERE groper=%s AND gropee=%s)", (ip1, ip2))
     found = False

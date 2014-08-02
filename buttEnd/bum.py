@@ -201,6 +201,18 @@ def add_coin(location_x, location_y, password = None):
 
     return jsonify(d), 200
 
+@app.route("/reset_coin_scores/")
+@app.route("/reset_coin_scores/<password>")
+def reset_coin_collection_scores(password = None):
+    if (password != KING_B0DH1_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
+        # Authentication Failed
+        return jsonify({'success': False, 'authenticated': False}), 403
+
+    # Auth Ok
+    d = {'success': False}
+    d['success'] = db_mgmt.reset_coin_collection_scores()
+    return jsonify(d), 200
+
 
 #####################################################################
 # Reading the Game State

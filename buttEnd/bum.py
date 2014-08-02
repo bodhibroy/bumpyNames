@@ -224,7 +224,7 @@ def game_state():
 
 @app.route("/add_or_update_user/<name>/<icon>/<sex>/<race>/<class_>/")
 @app.route("/add_or_update_user/<name>/<icon>/<sex>/<race>/<class_>/<min_x_>/<max_x_>/<min_y_>/<max_y_>/")
-def add_or_update_user(name, icon, sex, race, class_, min_x_ = 0, max_x_ = 40, min_y_ = 0, max_y_ = 20):
+def add_or_update_user(name, icon, sex, race, class_, min_x_ = 0, max_x_ = 40, min_y_ = 0, max_y_ = 25):
     try:
         ip = request.remote_addr
         min_x, max_x, min_y, max_y = int(min_x_), int(max_x_), int(min_y_), int(max_y_)

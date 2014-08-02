@@ -231,6 +231,7 @@ function updateScores(){
 	finalScores=coins.sort(function (o1,o2){
 		return o1.coins-o2.coins;
 	});
+	
 }
 
 

@@ -18,21 +18,16 @@ function startView(){
 
 
 function draw() {
-	if (runAnimation){
-		context.beginPath();
-		context.clearRect(0, 0, WIDTH, HEIGHT);
-		drawALL();
-	}
+	context.beginPath();
+	context.clearRect(0, 0, WIDTH, HEIGHT);
+	drawALL();
 }
 
 function drawALL(){
     $.getJSON('http://localhost:8000/game_state', function(data) {
     //data is the JSON string
-	//console.log(data);
 	var players=data['players'];
-	//console.log(players)
 	for (var player in players){
-	    //console.log(players[player]['icon']);
 	    var iconURL='http://localhost:8000/icons/' + players[player]['icon'];
 	    var pos_x=players[player]['location_x'];
 	    var pos_y=players[player]['location_y'];
@@ -40,8 +35,6 @@ function drawALL(){
 	    img.src = iconURL;
 	    context.drawImage(img,pos_x,pos_y);
 	}
-	//console.log('blah');
-
     });
     
 }

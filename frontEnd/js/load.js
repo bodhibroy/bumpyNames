@@ -24,7 +24,7 @@ function draw() {
 }
 
 function drawALL(){
-    $.getJSON('http://'+ serverIP+ '/game_state', function(data) {
+    $.getJSON('http://'+ serverIP+ '/game_state/', function(data) {
     //data is the JSON string
 	var players=data['players'];
 	for (var player in players){

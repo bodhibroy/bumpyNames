@@ -86,16 +86,18 @@
 					var ipaddr='';
 					var nameOfUser= document.someForm.username.value;
 					nameOfUser.replace(/(\||\/)/g, '');
-					$.getJSON('/get_my_ip', function(data){
-						//data is the JSON string
-						ipaddr=data.ip;
-						var url='/add_or_update_user/';
+					var url='/add_or_update_user/';
 					var content=nameOfUser + '/' + icon + '/' + gender + '/' + race + '/' + _class;// + '/';// + '0/40/0/20';
-					console.log(content);
+					$.getJSON(url+content, function(data){
+						//data is the JSON string
+// 						ipaddr=data.ip;
+// 						console.log(content);
 					
-					xmlhttp.open("GET",url+content,true);
-					xmlhttp.send();
-					window.location.href='/disclaimer.html/';
+						if (data.success) {
+							window.location.href='/disclaimer.html/';
+						} else {
+							alert('player status did not get updated in the system');
+						}
 					});
 
 					//set AJAX data

@@ -441,6 +441,24 @@ def get_user(ip, cursor, trim = False):
 
     return d
 
+def user_exists(ip):
+    user = None
+    conn = None
+    try:
+        conn = db_connection();
+        cursor = conn.cursor();
+        user = get_user(ip, cursor)
+    except psycopg2.DatabaseError, e:
+        print "exception"
+    finally:
+        if conn:
+            conn.close()
+
+    if user is None:
+        return False
+    else:
+        return True
+
 
 def get_user_at(x_pos, y_pos, cursor, trim = False):
     d = None

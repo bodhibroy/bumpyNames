@@ -41,6 +41,38 @@
 				<h3>Database: CAREFUL!!!</h3>
 				<input type=button value='Reset database' onClick='resetDB();'><br>
 			</div>
+
+			<div>
+				<h3>Being a Unique Snowflake</h3>
+				Name: <input type="text" name="username" maxlength='14' value='TheBBRoy'> (20 characters)<br>
+				<table><tr><td valign=middle>
+				Gender: 
+				<select id='gender' name='gender'>
+					<option value="Not Sure">Not Sure</option>
+					<option value="Male">Male</option>
+					<option value="Female">Female</option>
+				</select>&nbsp;&nbsp;
+				Race:
+				<select id='race' name='race'>
+					<option value="Not Sure">Not Sure</option>
+					<option value="Human">Human</option>
+					<option value="Elf">Elf</option>
+					<option value="Orc">Orc</option>
+					<option value="Gnome">Gnome</option>
+				</select>&nbsp;&nbsp;
+				Class: <select id='class' name='class'>
+					<option value="DATA SCIENTIST">DATA SCIENTIST</option>
+					<option value="Not Sure">Not Sure</option>
+					<option value="Archer">Archer</option>
+					<option value="Barbarian">Barbarian</option>
+					<option value="Sorcerer">Sorcerer</option>
+					<option value="Bard">Bard</option>
+				</select>&nbsp;&nbsp;
+				Icon: <span id='selectedIcon'></span>&nbsp;&nbsp;
+				<input type=button value='Put the Boss in Play' onClick='bossInPlay();'><br>
+				</td></tr></table><br>
+				<div id='icontable'> </div>
+			</div>
 		</from>
 	</body>
 

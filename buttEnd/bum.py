@@ -133,6 +133,10 @@ def reset_db(password = None):
 def get_my_ip():
     return jsonify({'ip': request.remote_addr}), 200
 
+@app.route("/user_exists")
+def user_exists():
+    return jsonify({'user_exists': db_mgmt.user_exists(request.remote_addr)}), 200
+
 @app.route("/get_icon_list/<my_filter>")
 @app.route("/get_icon_list")
 def get_icon_list(my_filter = ""):

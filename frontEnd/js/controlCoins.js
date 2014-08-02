@@ -88,3 +88,84 @@ function resetDB() {
 		takeControlAction(url, actionDesc)
 	}
 }
+
+
+
+
+iconURL = ''
+function imageClick(_src){
+	iconURL=_src;
+	document.getElementById('selectedIcon').innerHTML='<img src="' + iconURL + '">';
+}
+all_icons = []
+
+$.getJSON('/get_icon_list', function(data) {
+	if (data != null) {
+		all_icons = data.icons
+	} else {
+		all_icons = ['Animal_Icons_alligator.png', 'Animal_Icons_ant.png', 'Animal_Icons_bat.png', 'Animal_Icons_bear.png', 'Animal_Icons_bee.png', 'Animal_Icons_bird.png', 'Animal_Icons_bull.png', 'Animal_Icons_bulldog.png', 'Animal_Icons_butterfly.png', 'Animal_Icons_cat.png', 'Animal_Icons_chicken.png', 'Animal_Icons_cow.png', 'Animal_Icons_crab.png', 'Animal_Icons_crocodile.png', 'Animal_Icons_deer.png', 'Animal_Icons_dog.png', 'Animal_Icons_donkey.png', 'Animal_Icons_duck.png', 'Animal_Icons_eagle.png', 'Animal_Icons_elephant.png', 'Animal_Icons_fish.png', 'Animal_Icons_fox.png', 'Animal_Icons_frog.png', 'Animal_Icons_giraffe.png', 'Animal_Icons_gorilla.png', 'Animal_Icons_hippo.png', 'Animal_Icons_horse.png', 'Animal_Icons_insect.png', 'Animal_Icons_lion.png', 'Animal_Icons_monkey.png', 'Animal_Icons_moose.png', 'Animal_Icons_mouse.png', 'Animal_Icons_owl.png', 'Animal_Icons_panda.png', 'Animal_Icons_penguin.png', 'Animal_Icons_pig.png', 'Animal_Icons_rabbit.png', 'Animal_Icons_rhino.png', 'Animal_Icons_rooster.png', 'Animal_Icons_shark.png', 'Animal_Icons_sheep.png', 'Animal_Icons_snake.png', 'Animal_Icons_tiger.png', 'Animal_Icons_turkey.png', 'Animal_Icons_turtle.png', 'Animal_Icons_wolf.png'];			
+	}
+
+	var content='<table border=\"1\">'
+	var colsPerRow = 24
+	for (var i=0;i<all_icons.length;i++) {
+		if(i%colsPerRow==0) {
+			content+='<tr>'
+		}
+		var temp='<td><img src=\"/icons/' + all_icons[i] + '\"'+ ' height="32" width="32" onclick="imageClick(this.src);"></td>'
+		content+=temp
+		if(i%colsPerRow==colsPerRow-1) {
+			content+='</tr>'
+		} else if (i==all_icons.length-1) {
+			content+='</tr>'
+		}
+	}
+	content+='</table>'
+	console.log(content)
+	document.getElementById('icontable').innerHTML=content;
+	imageClick('/icons/' + all_icons[Math.floor(Math.random()*all_icons.length)])
+});
+
+
+
+function bossInPlay() 
+{
+	if(document.someForm.username.value == "") 
+	{
+		alert("please enter a Name");
+		return false;
+	}
+	if (iconURL=="")
+	{
+		alert("please choose an icon");
+		return false;
+	}
+	else
+	{
+		var e = document.getElementById("race");
+		var character = e.options[e.selectedIndex].value;
+		e = document.getElementById("gender");
+		var gender = e.options[e.selectedIndex].value;
+		e = document.getElementById("class");
+		var _class = e.options[e.selectedIndex].value;
+		e = document.getElementById("race");
+		var race = e.options[e.selectedIndex].value;
+		// var icon = document.cookie.split(';')[0].split('=')[1].split('/')[4];
+
+		var iconL = iconURL.split('/')
+		var icon = iconL[iconL.length-1]
+
+		var nameOfUser= document.someForm.username.value;
+		nameOfUser.replace(/(\||\/)/g, '');
+
+		var url='/add_or_update_user/' + nameOfUser + '/' + icon + '/' + gender + '/' + race + '/' + _class + '/4/34/3/15';
+
+		$.getJSON(url, function(data) {
+			if (data.success) {
+				alert('Success.')
+			} else {
+				alert('Failed. (Huh!?)');
+			}
+		});
+	}
+}

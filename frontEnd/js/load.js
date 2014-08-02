@@ -246,10 +246,20 @@ function updateScores(){
 }
 
 
+function checkPlayerExists(fn) {
+	$.getJSON('/user_exists', function(data) {
+		if (!data.user_exists) {
+			window.location.href='/';
+		}
+	});
+}
+checkPlayerExists()	
 updateGameState()
+
 
 function startView() {
 	canvas=document.getElementById("myCanvas");
 	context=canvas.getContext('2d');
 	setInterval(updateGameState, 200);
+	setInterval(checkPlayerExists, 30000)
 }

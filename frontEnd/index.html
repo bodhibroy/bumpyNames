@@ -136,7 +136,7 @@
 				content+='</table>';
 				
 				document.getElementById('icons').innerHTML=content;
-				document.getElementById('selectedIcon').innerHTML='<img src="./icons/'+ names[Math.round(Math.random()*46)] + '"</img>' + '(randomly selected. Please click one of the images below)';
+				imageClick(urlString + names[Math.round(Math.random()*46)])
 			}
 			
 		</script>
@@ -173,7 +173,7 @@
 			<input type="checkbox" name="profession" value="Supermodel" checked>Supermodel			
 			<br> <br>
  -->
-			<div> I think I best represent a <span id='selectedIcon'></span></div><br><br><br>
+			<div>I think of myself as a <span id='selectedIcon'></span></div><br><br><br>
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			Choose from below:<div id='icons'></div>
 			<br><br><input type="button" class='myButton' value="Show me the rules of the game, please!" onClick='checkName();'>

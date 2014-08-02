@@ -2,21 +2,50 @@
 <html lang="en">
 	<head>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script type='text/javascript'>
+			var KING_B0DH1_PA55W0RD = "itobwywmtbfsflutsdkwyeomputpowiyscitujcituestitiamtycitujcituibsnicfytibstsmmaibtaiwtdibmlmabllycystysmhttatlccetytiwbhfarifoycitujcituestitiamtycitujcituaesiwimtictibsnicfytibstsmmaibtaiwtdibmlmabllyaikimeuftbikywjlmwsdiyibsnicfytibstsmmaibtaiwtdibmlmabllyibsnicfytitobwywmtbibsnicfytitobwywmtb"
+		</script>
 		<script type='text/javascript' src='/js/controlCoins.js'></script>
 	</head>
 	<body onload='pushCoin();'>
+			<h1>The Control Panel</h1>
 			<form name='someForm' method='get' onSubmit='return false;'>
-			Generation Frequency: <input type="text" name="freq" maxlength='14' onChange='validateFreq();' value='3000'>ms (1s = 1000ms)<br><br>
-			Reset coin scores
-			Reset DB
-			Game stop (no moves)
-			Clear game state
+			<div>
+				<h3>Coin Generation</h3>
+				Generation Frequency: <input type="text" name="freq" maxlength='14' onChange='validateFreq();' value='1000000'>ms (1s = 1000ms)<br>
+				<input type=button value='Clear Coin Scores' onClick='clearCoinScores();'>
+			</div>
 
-			Game states link
-			High fidelity records link
+			<div>
+				<h3>Game State: Stopping Player Movement</h3>
+				<input type=button value='Set Game State to STOP' onClick='setGameStateStop();'><br>
+				<input type=button value='Clear Game State' onClick='clearGameState();'><br>
+			</div>
 
+			<div>
+				<h3>Game Links</h3>
+				<a target='_blank' href='/'>Index Page</a><br>
+				<a target='_blank' href='/game.html'>game.html</a><br>
+			</div>
 
-			game.html (no user, redirect...)
+			<div>
+				<h3>Data Demo Links: for students</h3>
+				<a target='_blank' href='/show_all'>Show current game state (HTML)</a><br>
+				<a target='_blank' href='/game_stats'>Game statistics</a><br>
+				<a target='_blank' href='/dump_it_all'>Game data dump (JSON)</a><br>
+				<a target='_blank' href='/high_fidelity_records'>High fidelity records (JSON)</a><br>
+				<a target='_blank' href='/high_fidelity_records_html'>High fidelity records (HTML)</a><br>
+			</div>
+
+			<div>
+				<h3>Database: CAREFUL!!!</h3>
+				<input type=button value='Reset database' onClick='resetDB();'><br>
+			</div>
 		</from>
 	</body>
+
+	<script type='text/javascript'>
+	alert('Remember to set the inter-generation interval to something smaller...')
+	</script>
+
 </html>

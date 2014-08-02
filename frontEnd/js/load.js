@@ -165,7 +165,7 @@ function performKeyDownEvent(event){
 	}
 
 	for (var i = 0; i < game_state.game.length; i++) {
-		if (game_state.game[i].property == "game stop") {
+		if (game_state.game[i].property == "Game Stop") {
 			return
 		}
 	}

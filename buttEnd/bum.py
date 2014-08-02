@@ -42,9 +42,9 @@ def serve_game_page():
 def serve_index_page():
     return send_file('../frontEnd/index.html')
 
-@app.route('/disclaimer.html')
-def serve_disclaimer_page():
-    return send_file('../frontEnd/disclaimer.html')
+@app.route('/gameplay.html')
+def serve_gameplay_page():
+    return send_file('../frontEnd/gameplay.html')
 
 @app.route("/control/")
 @app.route("/control/<password>/")
@@ -337,9 +337,9 @@ def game_stats():
 if __name__ == '__main__':
     #app.run()
     #app.run(host='0.0.0.0', port=8000)
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    #app.run(host='0.0.0.0', port=8000, debug=True)
 
-    #serve(app, host='0.0.0.0', port=8000)
+    serve(app, host='0.0.0.0', port=8000)
 
 #####################################################################
 #####################################################################

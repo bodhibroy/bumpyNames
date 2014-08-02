@@ -357,36 +357,36 @@ def get_bumpy_queries():
 
 
     queries.append(('Average/Max/Min Groper Gropes by Sex', """
-    SELECT sex, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2), MIN(grope_count), MAX(grope_count)
+    SELECT sex, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2) as Average, MIN(grope_count), MAX(grope_count)
         FROM groper_grope_counts GROUP BY sex ORDER BY sex;
     """))
 
 
     queries.append(('Average/Max/Min Groper Gropes by Race', """
-    SELECT race, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2), MIN(grope_count), MAX(grope_count)
+    SELECT race, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2) as Average, MIN(grope_count), MAX(grope_count)
         FROM groper_grope_counts GROUP BY race ORDER BY race;
     """))
 
 
     queries.append(('Average/Max/Min Groper Gropes by Class', """
-    SELECT class, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2), MIN(grope_count), MAX(grope_count)
+    SELECT class, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2) as Average, MIN(grope_count), MAX(grope_count)
         FROM groper_grope_counts GROUP BY class ORDER BY class;
     """))
 
 
     queries.append(('Average/Max/Min Gropee Gropes by Sex', """
-    SELECT sex, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2), MIN(grope_count), MAX(grope_count)
+    SELECT sex, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2) as Average, MIN(grope_count), MAX(grope_count)
         FROM gropee_grope_counts GROUP BY sex ORDER BY sex;
     """))
 
 
     queries.append(('Average/Max/Min Gropee Gropes by Race', """
-    SELECT race, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2), MIN(grope_count), MAX(grope_count)
+    SELECT race, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2) as Average, MIN(grope_count), MAX(grope_count)
         FROM gropee_grope_counts GROUP BY race ORDER BY race;
     """))
 
     queries.append(('Average/Max/Min Gropee Gropes by Class', """
-    SELECT class, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2), MIN(grope_count), MAX(grope_count)
+    SELECT class, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2) as Average, MIN(grope_count), MAX(grope_count)
         FROM gropee_grope_counts GROUP BY class ORDER BY class;
     """))
 

@@ -230,7 +230,15 @@ function updateScores(){
 	finalScores=coins.sort(function (o1,o2){
 		return o1.coins-o2.coins;
 	});
-	
+	var content='<table>';
+	for (var i=finalScores.length -1 ;i>-0; i--){
+		content+='<tr>'
+		content+='<td>' + finalScores.name + <'/td'>
+		content+='<td>' + finalScores.coins + <'/td'>
+		content+='</tr>'
+	}
+	content+='</table>'
+	document.getElementById('ldb').innerHTML=content;
 }
 
 

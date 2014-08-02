@@ -1,6 +1,6 @@
 var canvas;
 var context;
-var HEIGHT=25, WIDTH=40;
+var HEIGHT=18, WIDTH=37;
 var dx=32,dy=32;
 var serverIP='192.168.0.12:8000';
 window.addEventListener('keydown',performKeyDownEvent,true);

@@ -27,8 +27,6 @@ function pushCoin(){
 			var pushCoinURL='/add_coin/' + randomX + '/' + randomY + '/';
 			$.getJSON(pushCoinURL);		
 		}
-		console.log(randomX,randomY);
-		//sleepforSomeSeconds();
 	});
 	setTimeout(pushCoin, getNextInterarrivalTime());
 	

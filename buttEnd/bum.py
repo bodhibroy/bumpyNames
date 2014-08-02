@@ -211,7 +211,9 @@ def get_current_game_state():
     ret2 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM game_state"))
     ret3 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM coins"))
     ret4 = db_mgmt.pull_messages(ip)
-    ret = {'players': ret1, 'game': ret2, 'coins': ret3, 'messages': ret4}
+    ret5 = db_mgmt.query_results_to_list_of_dicts(db_mgmt.get_query_results("SELECT * FROM players WHERE ip=\'{0}\'".format(ip)))
+
+    ret = {'players': ret1, 'game': ret2, 'coins': ret3, 'messages': ret4, 'me': ret5[0] if len(ret5) > 0 else None}
     return ret
 
 @app.route("/game_state/")
@@ -236,7 +238,7 @@ def add_or_update_user(name, icon, sex, race, class_, min_x_ = 0, max_x_ = 40, m
 @app.route("/move/<move>")
 def move(move):
     ip = request.remote_addr
-    ret = {'success': True, 'game_state': None}
+    ret = {'success': True, 'game_state': None, 'out_of_bounds': False}
 
     move_x = 0
     move_y = 0
@@ -284,7 +286,7 @@ def html_dump():
 
 @app.route("/show_user/<ip>")
 def show_user(ip):
-    query_results = db_mgmt.get_query_results("SELECT * FROM players WHERE ip=\'{0}\'".format(ip), True)
+    query_results = db_mgmt.get_query_results("SELECT * FROM players WHERE ip=\'{0}\'".format(ip), )
     return db_mgmt.generate_HTML_table(query_results, maps=maps), 200
 
 @app.route("/show_all")

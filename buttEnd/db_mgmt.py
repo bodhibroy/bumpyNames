@@ -314,7 +314,7 @@ def get_bumpy_queries():
                 ELSE gp1.groper
             END AS person_two,
             (COALESCE(gp1.grope_count,0)+COALESCE(gp2.grope_count,0)) AS gropes_exchanged,
-            ABS(COALESCE(gp1.grope_count,0)-COALESCE(gp2.grope_count,0)) / (0.0 + COALESCE(gp1.grope_count,0)+COALESCE(gp2.grope_count,0)) AS asymmetry
+            ROUND(ABS(COALESCE(gp1.grope_count,0)-COALESCE(gp2.grope_count,0)) / (0.0 + COALESCE(gp1.grope_count,0)+COALESCE(gp2.grope_count,0)),2) AS asymmetry
         FROM grope_pairs AS gp1
         LEFT JOIN grope_pairs AS gp2
             ON (gp1.groper = gp2.gropee AND gp2.groper = gp1.gropee)
@@ -357,36 +357,36 @@ def get_bumpy_queries():
 
 
     queries.append(('Average/Max/Min Groper Gropes by Sex', """
-    SELECT sex, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+    SELECT sex, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2), MIN(grope_count), MAX(grope_count)
         FROM groper_grope_counts GROUP BY sex ORDER BY sex;
     """))
 
 
     queries.append(('Average/Max/Min Groper Gropes by Race', """
-    SELECT race, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+    SELECT race, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2), MIN(grope_count), MAX(grope_count)
         FROM groper_grope_counts GROUP BY race ORDER BY race;
     """))
 
 
     queries.append(('Average/Max/Min Groper Gropes by Class', """
-    SELECT class, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+    SELECT class, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2), MIN(grope_count), MAX(grope_count)
         FROM groper_grope_counts GROUP BY class ORDER BY class;
     """))
 
 
     queries.append(('Average/Max/Min Gropee Gropes by Sex', """
-    SELECT sex, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+    SELECT sex, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2), MIN(grope_count), MAX(grope_count)
         FROM gropee_grope_counts GROUP BY sex ORDER BY sex;
     """))
 
 
     queries.append(('Average/Max/Min Gropee Gropes by Race', """
-    SELECT race, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+    SELECT race, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2), MIN(grope_count), MAX(grope_count)
         FROM gropee_grope_counts GROUP BY race ORDER BY race;
     """))
 
     queries.append(('Average/Max/Min Gropee Gropes by Class', """
-    SELECT class, SUM(grope_count), COUNT(grope_count), AVG(grope_count), MIN(grope_count), MAX(grope_count)
+    SELECT class, SUM(grope_count), COUNT(grope_count), ROUND(AVG(grope_count),2), MIN(grope_count), MAX(grope_count)
         FROM gropee_grope_counts GROUP BY class ORDER BY class;
     """))
 
@@ -405,7 +405,7 @@ def generate_HTML_table(query_results, border = 1, table_class='class_table', th
     L.append("\t<TR>")
     for col_name in cols:
         L.append("<TH CLASS='{0}'>".format(th_class))
-        L.append(str(col_name))
+        L.append(str(col_name).title())
         L.append("</TH>")
     L.append("</TR>\n\n")
 
@@ -416,8 +416,8 @@ def generate_HTML_table(query_results, border = 1, table_class='class_table', th
         L.append("\t<TR CLASS='{0}'>".format(tr_odd_class if (row_num % 2 == 1) else tr_even_class))
         col_idx = 0
         for s in row:
-            L.append("<TD>")
-            L.append(str(s) if cols[col_idx] not in maps else maps[cols[col_idx]](s))
+            L.append("<TD align='center'>")
+            L.append(str(s).title() if cols[col_idx] not in maps else maps[cols[col_idx]](s))
             L.append("</TD>")
             col_idx += 1
         L.append("</TR>\n")

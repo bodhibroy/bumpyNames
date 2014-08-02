@@ -39,3 +39,10 @@ function pushCoin(){
 function sleepforFiveSeconds(){
 	setTimeout(pushCoin(),3000);
 }
+
+
+
+function validateFreq() {
+	document.someForm.freq.value = '2000'
+}
+

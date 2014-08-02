@@ -87,9 +87,11 @@ function updateGameState(){
 				game_state.messages = []
 			}
 
-			processMessages()
-			draw()
-		}
+
+		processMessages()
+		updateLeaderBoard();
+		draw()
+
 	});
 }
 
@@ -221,6 +223,14 @@ function restartGame(){
 function updateScores(){
 	var leaderBoard=document.getElementById('ldb');
 	// update LeaderBoard
+	var coins=[]
+	var playersList=game_state.players
+	for (var i=0; i< playersList.length; i++){
+					coins.push({ip=playersList[i].ip,name=playersList[i].name,coins=playersList[i].coins})
+	}
+	finalScores=coins.sort(function (o1,o2){
+		return o1.coins-o2.coins;
+	});
 }
 
 
@@ -229,5 +239,5 @@ updateGameState()
 function startView() {
 	canvas=document.getElementById("myCanvas");
 	context=canvas.getContext('2d');
-	setInterval(updateGameState, 50);
+	setInterval(updateGameState, 100);
 }

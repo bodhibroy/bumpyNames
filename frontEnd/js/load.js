@@ -87,11 +87,10 @@ function updateGameState(){
 				game_state.messages = []
 			}
 
-
-		processMessages()
-		updateLeaderBoard();
-		draw()
-
+			processMessages()
+			updateScores();
+			draw()
+		}
 	});
 }
 
@@ -226,7 +225,7 @@ function updateScores(){
 	var coins=[]
 	var playersList=game_state.players
 	for (var i=0; i< playersList.length; i++){
-					coins.push({ip=playersList[i].ip,name=playersList[i].name,coins=playersList[i].coins})
+		coins.push({ip: playersList[i].ip,name: playersList[i].name,coins: playersList[i].coins})
 	}
 	finalScores=coins.sort(function (o1,o2){
 		return o1.coins-o2.coins;

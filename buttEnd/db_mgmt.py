@@ -722,8 +722,9 @@ def attempt_move(ip, x_move, y_move):
                 if num_coins > 0:
                     for k in range(num_coins):
                         ret = increment_coin_record(ip, cursor)
-                        ret = add_message(ip, game_messages["collected coin"], cursor = cursor)
-                        cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages['collected coin'], record_type, '|'.join([ip, str(location_x), str(location_y)])))
+                        ret = add_message(ip, game_messages['collected coin'], cursor = cursor)
+                        record_type = 'collected coin'
+                        cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, str(location_x), str(location_y)])))
             else:
                 # Collision
                 # grunts on both sides

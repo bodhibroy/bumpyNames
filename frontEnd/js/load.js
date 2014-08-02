@@ -6,9 +6,11 @@ var dx=32,dy=32;
 window.addEventListener('keydown',performKeyDownEvent,true);
 
 
+var me = null
 var game_state = null
 var message_queue = []
 
+var active_move = false
 
 // ------------------------------------------------------
 // Getting resource URLS
@@ -69,19 +71,22 @@ function randomArrayElement(arr) {
 
 function updateGameState(){
     $.getJSON('/game_state', function(data){
-		game_state = data
-
-		// Populate Message Queue
-		if (game_state != null) {
-			for (var i = 0; i < game_state.messages.length; i++) {
-				message_queue.push(game_state.messages[i])
+    	if (data != null) {
+			game_state = data
+			me = data.me
+			// Populate Message Queue
+			if (game_state != null) {
+				for (var i = 0; i < game_state.messages.length; i++) {
+					message_queue.push(game_state.messages[i])
+				}
+				game_state.messages = []
 			}
-			game_state.messages = []
-		}
+
 
 		processMessages()
 		updateLeaderBoard();
 		draw()
+
 	});
 }
 
@@ -92,30 +97,9 @@ function processMessages() {
 }
 
 
-function startView(){
-	canvas=document.getElementById("myCanvas");
-	context=canvas.getContext('2d');
-	var ip='';
-	draw();
-	reDraw();
-}
-
-
 function draw() {
 	context.beginPath();
-	context.clearRect(0, 0, WIDTH, HEIGHT);
-
-	if (game_state != null) {
-		var players = game_state['players'];
-		for (var player in players){
-		    var iconURL='/icons/' + players[player]['icon'];
-		    var pos_x=players[player]['location_x'] * dx;
-		    var pos_y=(HEIGHT - players[player]['location_y']) * dy;
-		    var img = new Image;
-		    img.src = iconURL;
-		    context.drawImage(img,pos_x,pos_y);
-		}
-    }
+	context.clearRect(0*dx, 0*dy, (WIDTH+1)*dx, (HEIGHT+1)*dy);
 
 	if (game_state != null) {
 		for (var player in game_state['players']){
@@ -142,31 +126,42 @@ function draw() {
 
 
 function performKeyDownEvent(event){
+	if (active_move || (me == null)) {
+		return
+	}
+
 	move = ''
 	switch (event.keyCode){
 		case 38:  /* Up arrow was pressed */
-			move = 'UP'
+			if (me.location_y + 1 <= HEIGHT) {
+				move = 'UP'
+			}
 		break;
 		case 40:  /* Down arrow was pressed */
-			move = 'DOWN'
+			if (me.location_y - 1 >= 0) {
+				move = 'DOWN'
+			}
 		break;
 		case 37:  /* Left arrow was pressed */
-			move = 'LEFT'
+			if (me.location_x - 1 >= 0) {
+				move = 'LEFT'
+			}
 		break;
 		case 39:  /* Right arrow was pressed */
-			move = 'RIGHT'
+			if (me.location_x + 1 <= WIDTH) {
+				move = 'RIGHT'
+			}
 		break;
 	}
-	console.log(move)
+	console.log(move + "|" + me.location_x + "|" + me.location_y)
 	if (move != '') {
+		active_move = true
 		$.getJSON('/move/' + move, function(data){
 			game_state = data.game_state
+			active_move = false
 
 			// ****** BODHI!!!! *****
 			// do something about the details?
-			console.log('Attempting to move ' + move)
-			console.log(data.success)
-			console.log(data.details)
 			// ****** BODHI!!!! *****
 		});
 	}
@@ -175,11 +170,6 @@ function performKeyDownEvent(event){
 
 function restartGame(){
 	window.location.href='./index.html';
-}
-
-
-function reDraw(){
-	return setInterval(updateGameState, 100);
 }
 
 function updateScores(){
@@ -195,4 +185,11 @@ function updateScores(){
 	});
 }
 
+
 updateGameState()
+
+function startView() {
+	canvas=document.getElementById("myCanvas");
+	context=canvas.getContext('2d');
+	setInterval(updateGameState, 100);
+}

@@ -90,12 +90,15 @@
 						//data is the JSON string
 						ipaddr=data.ip;
 						var url='/add_or_update_user/';
-					var content=nameOfUser + '/' + icon + '/' + gender + '/' + race + '/' + _class;// + '/';// + '0/40/0/20';
-					console.log(content);
+						var content=nameOfUser + '/' + icon + '/' + gender + '/' + race + '/' + _class;// + '/';// + '0/40/0/20';
+// 						console.log(content);
 					
-					xmlhttp.open("GET",url+content,true);
-					xmlhttp.send();
-					window.location.href='/disclaimer.html/';
+						.success(function(){
+							window.location.href='/disclaimer.html/';
+						})
+						.fail(function(){
+							alert('player status did not get updated in the system');
+						})
 					});
 
 					//set AJAX data

@@ -46,6 +46,10 @@ def serve_index_page():
 def serve_disclaimer_page():
     return send_file('../frontEnd/disclaimer.html')
 
+@app.route('/definitions.html')
+def serve_definitions_page():
+    return send_file('../frontEnd/definitions.html')
+
 @app.route("/control/")
 @app.route("/control/<password>/")
 def serve_control_page(password = None):
@@ -327,7 +331,13 @@ def high_fidelity_records_html():
 
 @app.route("/game_stats")
 def game_stats():
-    return html_dump_queries(db_mgmt.get_bumpy_queries())
+    header = '<head>'
+    header+='<link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">'
+    header+='<script src="//code.jquery.com/jquery-1.10.2.js"></script>'
+    header+='<script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>'
+    header+='<script>$(function(){$( "#accordion" ).accordion({collapsible: true});});</script>'
+    header+='</head>'
+    return header + '<body><div id="#accordion"' + html_dump_queries(db_mgmt.get_bumpy_queries()) + '</div></body>'
 
 
 #####################################################################

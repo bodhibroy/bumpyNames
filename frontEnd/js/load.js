@@ -219,6 +219,11 @@ function restartGame(){
 	window.location.href='./index.html';
 }
 
+function toTitleCase(str)
+{
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
 function updateScores(){
 	var leaderBoard=document.getElementById('ldb');
 	// update LeaderBoard
@@ -233,11 +238,11 @@ function updateScores(){
 
 	var content = ''
 	content+='<table>';
-	content+='<tr><th align=center colspan=2><u>Player</u></th><th align=center><img src=\'/icons/' + coin_icon + '\'></th></tr>';
+	content+='<tr><th align=center colspan=2><u><h3>Player</h3></u></th><th align=center><img src=\'/icons/' + coin_icon + '\'></th></tr>';
 	for (var i=finalScores.length -1 ;i>=0; i--){
 		content+='<tr>'
 		content+='<td><img src=\'/icons/' + finalScores[i].icon + '\'></td>'
-		content+='<td>' + finalScores[i].name + '</td>'
+		content+='<td>' + toTitleCase(finalScores[i].name) + '</td>'
 		content+='<td align=center>' + finalScores[i].coins + '</td>'
 		content+='</tr>'
 	}

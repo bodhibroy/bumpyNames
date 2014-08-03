@@ -93,27 +93,18 @@
 					var url='/add_or_update_user/' + nameOfUser + '/' + icon + '/' + gender + '/' + race + '/' + _class + '/2/35/2/16';
 
 					$.getJSON(url, function(data){
-						//data is the JSON string
-// 						ipaddr=data.ip;
-// 						console.log(content);
-					
+						//data is the JSON string				
 						if (data.success) {
 							window.location.href='/disclaimer.html';
 						} else {
 							alert('Error: Reload and try again?');
 						}
 					});
-
-					//set AJAX data
-					
-					 // /add_or_update_user/<ip>/<name>/<icon>/<sex>/<race>/<class_>/<min_x_>/<max_x_>/<min_y_>/<max_y_>
-										
-					
 				}
 			}
 			
 			function imageClick(_src){
-// 				console.log(_src);
+
 				iconURL=_src;
 				document.getElementById('selectedIcon').innerHTML='<img src="' + iconURL + '">';
 			}
@@ -128,8 +119,6 @@
 						content+='<tr>';
 					var temp='<td><img src="'+ urlString +names[i] + '"'+ ' height="32" width="32" onclick="imageClick(this.src);"></td>';
 					
-
-					//console.log(temp);
 					content+=temp;
 					if(i%8==7)
 						content+='</tr>';
@@ -167,15 +156,7 @@
 				<option value="Sorcerer">Sorcerer</option>
 				<option value="Bard">Bard</option>
 			</select> by profession.<br> <br>
-<!-- 
-			Jobs I would consider: 
-			<input type="checkbox" name="profession" value="Data Analyst">Data Analyst
-			<input type="checkbox" name="profession" value="Investment Banker">Investment Banker
-			<input type="checkbox" name="profession" value="Celebrity Chef">Celebrity Chef
-			<input type="checkbox" name="profession" value="Secret Agent">Secret Agent
-			<input type="checkbox" name="profession" value="Supermodel" checked>Supermodel			
-			<br> <br>
- -->
+
 			<div><table border=0><tr><td style="display:table-cell; vertical-align:middle">I think of myself as a&nbsp;</td><td style="display:table-cell; vertical-align:middle"><span id='selectedIcon'></span></td><td style="display:table-cell; vertical-align:middle">.</td></tr></table></div><br>
 			Choose from below:<div id='icons'></div>
 			<br><br><input type="button" class='myButton' value="Show me the rules of the game, please!" onClick='checkName();'>

@@ -79,7 +79,7 @@ function updateGameState(){
     $.getJSON('/game_state', function(data){
     	if (data != null) {
 			game_state = data
-			me = data.me
+			me = game_state.me
 			tryToGetBackIn()
 			// Populate Message Queue
 			if (game_state != null) {
@@ -164,7 +164,7 @@ function tryMove(move) {
 	active_move = true
 	$.getJSON('/move/' + move, function(data){
 		game_state = data.game_state
-		me = data.me
+		me = game_state.me
 		tryToGetBackIn()
 		if (game_state != null) {
 			for (var i = 0; i < game_state.messages.length; i++) {

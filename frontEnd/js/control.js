@@ -75,9 +75,9 @@ function clearGameState() {
 	takeControlAction(url, actionDesc)
 }
 
-function clearCoinScores() {
-	url = '/reset_coin_scores/' + KING_B0DH1_PA55W0RD
-	actionDesc = 'reset coin scores'
+function clearCoinScoresAndMoves() {
+	url = '/reset_scores/' + KING_B0DH1_PA55W0RD
+	actionDesc = 'reset scores'
 	takeControlAction(url, actionDesc)
 }
 

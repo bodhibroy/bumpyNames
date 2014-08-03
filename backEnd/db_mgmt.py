@@ -663,7 +663,7 @@ def add_coin_at_location(location_x, location_y):
             conn.close()
         return success
 
-def reset_coin_collection_scores():
+def reset_scores():
     conn = None
     success = True
     try:
@@ -673,10 +673,10 @@ def reset_coin_collection_scores():
         cursor.execute("BEGIN TRANSACTION;")
         cursor.execute("LOCK TABLE players IN ACCESS EXCLUSIVE MODE;")
 
-        cursor.execute("UPDATE players SET coins=0")
+        cursor.execute("UPDATE players SET coins=0, moves=0")
 
         record_type = 'misc'
-        cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, 'Reset coin scores.'))
+        cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, 'Reset coin scores and move counts.'))
         cursor.execute("COMMIT;")
 
     except psycopg2.DatabaseError, e:

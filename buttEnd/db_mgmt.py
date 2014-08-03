@@ -406,7 +406,7 @@ def generate_HTML_table(query_results, border = 1, table_class='class_table', th
         L.append("<TH CLASS='{0}'>".format(th_class))
         L.append(str(col_name).title())
         L.append("</TH>")
-    L.append("</TR>\n\n")
+    L.append("</TR>")
 
     # TD
     row_num = 0

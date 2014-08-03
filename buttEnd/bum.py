@@ -100,6 +100,14 @@ def serve_js(filename):
         return "Not Found. (Really... I tried...)", 404
 
 
+@app.route('/css/<filename>')
+def serve_css(filename):
+    try:
+        return send_file('../frontEnd/css/{0}'.format(filename), mimetype="text/css", as_attachment=False, attachment_filename=None, add_etags=True)
+    except Exception:
+        return "Not Found. (Really... I tried...)", 404
+
+
 #####################################################################
 # Global Database Management
 #####################################################################
@@ -297,7 +305,7 @@ maps = {'icon' : show_img, 'ip': link_wrap_ip, 'groper': link_wrap_ip, 'gropee':
 
 
 def html_dump_queries(queries):
-    L = ["".join(["<div><h3>", title, "</h3><p>", db_mgmt.generate_HTML_table(db_mgmt.get_query_results(q), maps=maps), "</p></div><br/>"]) for title, q in queries]
+    L = ["".join(["<section id ='" + title + "'><h2><a href='#" + title + "'>", title, "</a></h2><p>", db_mgmt.generate_HTML_table(db_mgmt.get_query_results(q), maps=maps), "</p></section>"]) for title, q in queries]
     return "".join(L)
 
 def html_dump():
@@ -336,12 +344,9 @@ def high_fidelity_records_html():
 @app.route("/game_stats")
 def game_stats():
     header = '<head>'
-    header+='<link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">'
-    header+='<script src="//code.jquery.com/jquery-1.10.2.js"></script>'
-    header+='<script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>'
-    header+='<script>$(function(){$( "#accordion" ).accordion({collapsible: true});});</script>'
+    header+='<link rel="stylesheet" href="/css/style.css">'
     header+='</head>'
-    return header + '<body><div id="#accordion"' + html_dump_queries(db_mgmt.get_bumpy_queries()) + '</div></body>'
+    return header + '<body><div class="accordion vertical">' + html_dump_queries(db_mgmt.get_bumpy_queries()) + '</div></body>'
 
 
 #####################################################################

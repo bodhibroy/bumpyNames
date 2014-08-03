@@ -197,6 +197,7 @@ function performKeyDownEvent(event){
 		active_move = true
 		$.getJSON('/move/' + move, function(data){
 			game_state = data.game_state
+			me = data.me
 
 			if (game_state != null) {
 				for (var i = 0; i < game_state.messages.length; i++) {

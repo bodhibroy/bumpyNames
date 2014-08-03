@@ -11,6 +11,7 @@ var game_state = null
 var message_queue = []
 
 var active_move = false
+var active_auto_move = false
 
 // ------------------------------------------------------
 // Getting resource URLS
@@ -79,6 +80,7 @@ function updateGameState(){
     	if (data != null) {
 			game_state = data
 			me = data.me
+			tryToGetBackIn()
 			// Populate Message Queue
 			if (game_state != null) {
 				for (var i = 0; i < game_state.messages.length; i++) {
@@ -104,7 +106,7 @@ function processMessages() {
 		game_messages[2] = "collide"
 		game_messages[3] = "collided into"
 		game_messages[4] = "collected coin"
-		console.log(game_messages[msg[i].message])
+		// console.log(game_messages[msg[i].message])
 		switch (msg[i].message){
 			case 1:
 				// game_messages["user move"] = 1
@@ -158,6 +160,48 @@ function draw() {
 	context.closePath();
 }
 
+function tryMove(move) {
+	active_move = true
+	$.getJSON('/move/' + move, function(data){
+		game_state = data.game_state
+		me = data.me
+		tryToGetBackIn()
+		if (game_state != null) {
+			for (var i = 0; i < game_state.messages.length; i++) {
+				message_queue.push(game_state.messages[i])
+			}
+			game_state.messages = []
+		}
+
+		active_move = false
+		active_auto_move = false
+	});
+}
+
+function tryToGetBackIn() {
+	if (active_auto_move) {
+		return
+	}
+
+	if (me != null) {
+		if (me.location_y > HEIGHT) {
+			active_auto_move = true
+			tryMove('DOWN')
+		}
+		if (me.location_y < 0) {
+			active_auto_move = true
+			tryMove('UP')
+		}
+		if (me.location_x > WIDTH) {
+			active_auto_move = true
+			tryMove('LEFT')
+		}
+		if (me.location_x < 0) {
+			active_auto_move = true
+			tryMove('RIGHT')
+		}
+	}
+}
 
 function performKeyDownEvent(event){
 	if (active_move || (me == null)) {
@@ -194,24 +238,7 @@ function performKeyDownEvent(event){
 		break;
 	}
 	if (move != '') {
-		active_move = true
-		$.getJSON('/move/' + move, function(data){
-			game_state = data.game_state
-			me = data.me
-
-			if (game_state != null) {
-				for (var i = 0; i < game_state.messages.length; i++) {
-					message_queue.push(game_state.messages[i])
-				}
-				game_state.messages = []
-			}
-
-			active_move = false
-
-			// ****** BODHI!!!! *****
-			// do something about the details?
-			// ****** BODHI!!!! *****
-		});
+		tryMove(move);
 	}
 }
 

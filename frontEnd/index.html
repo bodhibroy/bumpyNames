@@ -57,6 +57,11 @@
 		
 		<script>
 			var iconURL='';
+
+			$.getJSON('/get_my_ip', function(data) {
+				document.someForm.username.value = 'Player (' + data.ip + ')'
+			});
+
 			function checkName() 
 			{
 				if(document.someForm.username.value == "") 
@@ -90,12 +95,12 @@
 					var nameOfUser= document.someForm.username.value;
 					nameOfUser.replace(/(\||\/)/g, '');
 
-					var url='/add_or_update_user/' + nameOfUser + '/' + icon + '/' + gender + '/' + race + '/' + _class + '/2/35/2/16';
+					var url='/add_or_update_user/' + nameOfUser + '/' + icon + '/' + gender + '/' + race + '/' + _class + '/4/34/3/15';
 
 					$.getJSON(url, function(data){
 						//data is the JSON string				
 						if (data.success) {
-							window.location.href='/disclaimer.html';
+							window.location.href='/gameplay.html';
 						} else {
 							alert('Error: Reload and try again?');
 						}
@@ -104,7 +109,6 @@
 			}
 			
 			function imageClick(_src){
-
 				iconURL=_src;
 				document.getElementById('selectedIcon').innerHTML='<img src="' + iconURL + '">';
 			}

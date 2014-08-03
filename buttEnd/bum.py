@@ -42,9 +42,9 @@ def serve_game_page():
 def serve_index_page():
     return send_file('../frontEnd/index.html')
 
-@app.route('/disclaimer.html')
-def serve_disclaimer_page():
-    return send_file('../frontEnd/disclaimer.html')
+@app.route('/gameplay.html')
+def serve_gameplay_page():
+    return send_file('../frontEnd/gameplay.html')
 
 @app.route('/definitions.html')
 def serve_definitions_page():
@@ -136,6 +136,10 @@ def reset_db(password = None):
 @app.route("/get_my_ip")
 def get_my_ip():
     return jsonify({'ip': request.remote_addr}), 200
+
+@app.route("/user_exists")
+def user_exists():
+    return jsonify({'user_exists': db_mgmt.user_exists(request.remote_addr)}), 200
 
 @app.route("/get_icon_list/<my_filter>")
 @app.route("/get_icon_list")
@@ -347,9 +351,9 @@ def game_stats():
 if __name__ == '__main__':
     #app.run()
     #app.run(host='0.0.0.0', port=8000)
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    #app.run(host='0.0.0.0', port=8000, debug=True)
 
-    #serve(app, host='0.0.0.0', port=8000)
+    serve(app, host='0.0.0.0', port=8000)
 
 #####################################################################
 #####################################################################

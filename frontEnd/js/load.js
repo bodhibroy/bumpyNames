@@ -165,7 +165,7 @@ function performKeyDownEvent(event){
 	}
 
 	for (var i = 0; i < game_state.game.length; i++) {
-		if (game_state.game[i].property == "game stop") {
+		if (game_state.game[i].property == "Game Stop") {
 			return
 		}
 	}
@@ -251,10 +251,20 @@ function updateScores(){
 }
 
 
+function checkPlayerExists(fn) {
+	$.getJSON('/user_exists', function(data) {
+		if (!data.user_exists) {
+			window.location.href='/';
+		}
+	});
+}
+checkPlayerExists()	
 updateGameState()
+
 
 function startView() {
 	canvas=document.getElementById("myCanvas");
 	context=canvas.getContext('2d');
 	setInterval(updateGameState, 200);
+	setInterval(checkPlayerExists, 30000)
 }

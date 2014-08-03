@@ -305,7 +305,7 @@ maps = {'icon' : show_img, 'ip': link_wrap_ip, 'groper': link_wrap_ip, 'gropee':
 
 
 def html_dump_queries(queries):
-    L = ["".join(["<section id ='" + title + "'><h2><a href='#" + title + "'>", title, "</a></h2><p>", db_mgmt.generate_HTML_table(db_mgmt.get_query_results(q), maps=maps), "</p></section>"]) for title, q in queries]
+    L = ["".join(["<section id ='" + title + "'><h2><a href='#" + title + "'><h3>", title, "</h3></a></h2><p>", db_mgmt.generate_HTML_table(db_mgmt.get_query_results(q), maps=maps), "</p></section>"]) for title, q in queries]
     return "".join(L)
 
 def html_dump():
@@ -346,7 +346,7 @@ def game_stats():
     header = '<head>'
     header+='<link rel="stylesheet" href="/css/style.css">'
     header+='</head>'
-    return header + '<body><div class="accordion vertical">' + html_dump_queries(db_mgmt.get_bumpy_queries()) + '</div></body>'
+    return header + '<body>' + '<div id ="heading">More analysis</div>' + '<div class="accordion vertical">' + html_dump_queries(db_mgmt.get_bumpy_queries()) + '</div></body>'
 
 
 #####################################################################

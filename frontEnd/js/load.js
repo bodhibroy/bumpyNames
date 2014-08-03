@@ -267,12 +267,15 @@ function updateScores(){
 	var content = ''
 	content+='<table>';
 	content+='<tr><th align=center colspan=2><u><h3>Player</h3></u></th><th align=center><img src=\'/icons/' + coin_icon + '\'></th></tr>';
+	var num_shown = 0
 	for (var i=finalScores.length -1 ;i>=0; i--){
 		content+='<tr>'
 		content+='<td><img src=\'/icons/' + finalScores[i].icon + '\'></td>'
 		content+='<td>' + toTitleCase(finalScores[i].name) + '</td>'
 		content+='<td align=center>' + finalScores[i].coins + '</td>'
 		content+='</tr>'
+		num_shown += 1
+		if (num_shown >= 10) { break }
 	}
 	content+='</table>'
 	document.getElementById('ldb').innerHTML=content;

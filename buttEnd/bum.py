@@ -17,7 +17,7 @@ import random
 #####################################################################
 
 #KING_B0DH1_PA55W0RD = "BP,YMHaMD,AtPaGBDoyK"
-KING_B0DH1_PA55W0RD = "itobwywmtbfsflutsdkwyeomputpowiyscitujcituestitiamtycitujcituibsnicfytibstsmmaibtaiwtdibmlmabllycystysmhttatlccetytiwbhfarifoycitujcituestitiamtycitujcituaesiwimtictibsnicfytibstsmmaibtaiwtdibmlmabllyaikimeuftbikywjlmwsdiyibsnicfytibstsmmaibtaiwtdibmlmabllyibsnicfytitobwywmtbibsnicfytitobwywmtb"
+PA55W0RD = "itobwywmtbfsflutsdkwyeomputpowiyscitujcituestitiamtycitujcituibsnicfytibstsmmaibtaiwtdibmlmabllycystysmhttatlccetytiwbhfarifoycitujcituestitiamtycitujcituaesiwimtictibsnicfytibstsmmaibtaiwtdibmlmabllyaikimeuftbikywjlmwsdiyibsnicfytibstsmmaibtaiwtdibmlmabllyibsnicfytitobwywmtbibsnicfytitobwywmtb"
 
 def get403ForbiddenMessage():
     forbiddenMessages = [u"запретный!", u'уходить.', u'Я устал...', u'Я хочу спать...', u'кто ты?', u'я сонный...']
@@ -46,10 +46,14 @@ def serve_index_page():
 def serve_gameplay_page():
     return send_file('../frontEnd/gameplay.html')
 
+@app.route('/definitions.html')
+def serve_definitions_page():
+    return send_file('../frontEnd/definitions.html')
+
 @app.route("/control/")
 @app.route("/control/<password>/")
 def serve_control_page(password = None):
-    if (password != KING_B0DH1_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
+    if (password != PA55W0RD) and (request.remote_addr != '127.0.0.1'):
         # Authentication Failed
         return get403ForbiddenMessage(), 403
     else:
@@ -96,6 +100,14 @@ def serve_js(filename):
         return "Not Found. (Really... I tried...)", 404
 
 
+@app.route('/css/<filename>')
+def serve_css(filename):
+    try:
+        return send_file('../frontEnd/css/{0}'.format(filename), mimetype="text/css", as_attachment=False, attachment_filename=None, add_etags=True)
+    except Exception:
+        return "Not Found. (Really... I tried...)", 404
+
+
 #####################################################################
 # Global Database Management
 #####################################################################
@@ -103,7 +115,7 @@ def serve_js(filename):
 @app.route("/clear_and_seed_db/")
 @app.route("/clear_and_seed_db/<password>")
 def clear_and_seed_db(password = None):
-    if (password != KING_B0DH1_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
+    if (password != PA55W0RD) and (request.remote_addr != '127.0.0.1'):
         # Authentication Failed
         return get403ForbiddenMessage(), 403
 
@@ -115,7 +127,7 @@ def clear_and_seed_db(password = None):
 @app.route("/clear_db/")
 @app.route("/clear_db/<password>")
 def reset_db(password = None):
-    if (password != KING_B0DH1_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
+    if (password != PA55W0RD) and (request.remote_addr != '127.0.0.1'):
         # Authentication Failed
         return jsonify({'success': False, 'authenticated': False}), 403
 
@@ -159,7 +171,7 @@ def get_sound_list(my_filter = ""):
 
 
 #####################################################################
-# King Bodhi's Controls (Use from control.html)
+# Controls (Use from control.html)
 #####################################################################
 
 @app.route("/set_game_state/")
@@ -170,7 +182,7 @@ def set_game_state(password = None, blah = ""):
     #          will clear the game_state table and insert rows
     #          ('p1', '', 2, 5) and ('p2', 'stuff', 2, 5.888)
 
-    if (password != KING_B0DH1_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
+    if (password != PA55W0RD) and (request.remote_addr != '127.0.0.1'):
         # Authentication Failed
         return jsonify({'success': False, 'authenticated': False}), 403
 
@@ -192,7 +204,7 @@ def set_game_state(password = None, blah = ""):
 @app.route("/add_coin/<location_x>/<location_y>/")
 @app.route("/add_coin/<location_x>/<location_y>/<password>")
 def add_coin(location_x, location_y, password = None):
-    if (password != KING_B0DH1_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
+    if (password != PA55W0RD) and (request.remote_addr != '127.0.0.1'):
         # Authentication Failed
         return jsonify({'success': False, 'authenticated': False}), 403
 
@@ -208,7 +220,7 @@ def add_coin(location_x, location_y, password = None):
 @app.route("/reset_coin_scores/")
 @app.route("/reset_coin_scores/<password>")
 def reset_coin_collection_scores(password = None):
-    if (password != KING_B0DH1_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
+    if (password != PA55W0RD) and (request.remote_addr != '127.0.0.1'):
         # Authentication Failed
         return jsonify({'success': False, 'authenticated': False}), 403
 
@@ -293,7 +305,7 @@ maps = {'icon' : show_img, 'ip': link_wrap_ip, 'groper': link_wrap_ip, 'gropee':
 
 
 def html_dump_queries(queries):
-    L = ["".join(["<div><h3>", title, "</h3><p>", db_mgmt.generate_HTML_table(db_mgmt.get_query_results(q), maps=maps), "</p></div><br/>"]) for title, q in queries]
+    L = ["".join(["<section id ='" + title + "'><h2><a href='#" + title + "'><h3>", title, "</h3></a></h2><p>", db_mgmt.generate_HTML_table(db_mgmt.get_query_results(q), maps=maps), "</p></section>"]) for title, q in queries]
     return "".join(L)
 
 def html_dump():
@@ -331,7 +343,10 @@ def high_fidelity_records_html():
 
 @app.route("/game_stats")
 def game_stats():
-    return html_dump_queries(db_mgmt.get_bumpy_queries())
+    header = '<head>'
+    header+='<link rel="stylesheet" href="/css/style.css">'
+    header+='</head>'
+    return header + '<body>' + '<div id ="heading">More analysis</div>' + '<div class="accordion vertical">' + html_dump_queries(db_mgmt.get_bumpy_queries()) + '</div></body>'
 
 
 #####################################################################

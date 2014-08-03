@@ -399,15 +399,14 @@ def generate_HTML_table(query_results, border = 1, table_class='class_table', th
         maps = {}
 
     cols = query_results['cols']
-
-    L = ["<TABLE BORDER={0} CLASS='{1}'>\n".format(border, table_class)]
+    L=["<TABLE BORDER={0} CLASS='{1}'>\n".format(border, table_class)]
     # TH
     L.append("\t<TR>")
     for col_name in cols:
         L.append("<TH CLASS='{0}'>".format(th_class))
         L.append(str(col_name).title())
         L.append("</TH>")
-    L.append("</TR>\n\n")
+    L.append("</TR>")
 
     # TD
     row_num = 0

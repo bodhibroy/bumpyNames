@@ -5,7 +5,7 @@
 var DEFAULT_GAME_LOOP_FREQUENCY_IN_MS = 75
 var GAME_LOOP_FREQUENCY_IN_MS = DEFAULT_GAME_LOOP_FREQUENCY_IN_MS
 
-var DEFAULT_P_RANDOM_MOVE = 0.02
+var DEFAULT_P_RANDOM_MOVE = 0.01
 var P_RANDOM_MOVE = DEFAULT_P_RANDOM_MOVE
 
 var DEFAULT_P_RANDOM_MOVE_COUNT_GEOM = 0.75
@@ -26,7 +26,7 @@ var profession = null;
 var K_d = null;
 var K_od = null;
 
-var rate = 1
+var rate = 1.5
 var default_K_d = 1 * rate;
 var default_K_od = 0.25 * rate;
 
@@ -199,6 +199,11 @@ function processMessages() {
 }
 
 function tryMove(move) {
+	if ((move.toUpperCase() == 'UP') && (me.location_y + 1 > HEIGHT)) { return }
+	if ((move.toUpperCase() == 'DOWN') && (me.location_y - 1 < 0)) { return }
+	if ((move.toUpperCase() == 'LEFT') && (me.location_x - 1 < 0)) { return }
+	if ((move.toUpperCase() == 'RIGHT') && (me.location_x + 1 > WIDTH)) { return }
+
 	waitForMessage()
 	// console.log('Moving ' + move)
 	$.getJSON('/move/' + move, function(data){
@@ -310,7 +315,7 @@ function doGameBotLoop() {
 	if (num_random_moves == 0) {
 		if (Math.random() <= P_RANDOM_MOVE) {
 			num_random_moves = getNumberOfRandomMoves()
-			console.log(num_random_moves + ' random moves')
+			console.log('Decided to move randomly: ' + num_random_moves + ' random moves')
 		}
 	}
 

@@ -336,7 +336,7 @@ def get_bumpy_queries():
     queries.append(('Sexual Predator Awareness Role Models', "SELECT * FROM least_groped_grope_counts;"))
 
 
-    queries.append(('Star Crossed Pairs (Male Gropers)', """
+    queries.append(('Star Crossed Pairs (Male Gropers, Female Gropees)', """
     SELECT players1.name as groper_name, players2.name as gropee_name
         FROM players AS players1
         JOIN players AS players2 ON (players1.ip != players2.ip AND players1.sex != players2.sex)
@@ -346,7 +346,7 @@ def get_bumpy_queries():
     """))
 
 
-    queries.append(('Star Crossed Pairs (Female Gropers)', """
+    queries.append(('Star Crossed Pairs (Female Gropers, Male Gropees)', """
     SELECT players1.name as groper_name, players2.name as gropee_name
         FROM players AS players1
         JOIN players AS players2 ON (players1.ip != players2.ip AND players1.sex != players2.sex)
@@ -393,20 +393,20 @@ def get_bumpy_queries():
     return queries
 
 
-def generate_HTML_table(query_results, border = 1, table_class='class_table', th_class='class_th',
-                        tr_odd_class='class_tr', tr_even_class='class_tr', maps=None):
+def generate_HTML_table(query_results, border = 0, table_class='class_table', th_class='class_th',
+                        tr_odd_class='odd', tr_even_class='even', maps=None):
     if maps is None:
         maps = {}
 
     cols = query_results['cols']
     L=["<TABLE BORDER={0} CLASS='{1}'>\n".format(border, table_class)]
     # TH
-    L.append("\t<TR>")
+    L.append("\t<THEAD><TR>")
     for col_name in cols:
         L.append("<TH CLASS='{0}'>".format(th_class))
         L.append(str(col_name).title())
         L.append("</TH>")
-    L.append("</TR>")
+    L.append("</TR></THEAD>")
 
     # TD
     row_num = 0

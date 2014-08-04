@@ -102,11 +102,6 @@ def serve_css(filename):
     except Exception:
         return "Not Found. (Really... I tried...)", 404
 
-@app.route('/visualStuff.html')
-def server_visual():
-    #return app.send_static_file('game.html')
-    return send_file('../frontEnd/visualStuff.html')
-
 #####################################################################
 # Global Database Management
 #####################################################################
@@ -309,13 +304,14 @@ def html_dump_queries(queries):
 
 def html_dump():
     tables = ['players', 'coins', 'game_state', 'messages', 'gropes']
-    return html_dump_queries([(tbl, "SELECT * FROM " + tbl) for tbl in tables])
+    return """<head><link rel="stylesheet" href="/css/style.css"></head>""" + html_dump_queries([(tbl, "SELECT * FROM " + tbl) for tbl in tables])
 
 
 @app.route("/show_user/<ip>")
 def show_user(ip):
     query_results = db_mgmt.get_query_results("SELECT * FROM players WHERE ip=\'{0}\'".format(ip), )
-    return db_mgmt.generate_HTML_table(query_results, maps=maps), 200
+    
+    return """<head><link rel="stylesheet" href="/css/style.css"></head>""" + db_mgmt.generate_HTML_table(query_results, maps=maps), 200
 
 @app.route("/show_all")
 def show_all():
@@ -346,8 +342,8 @@ def game_stats():
                 <title>Some Exploratory Data Analysis</title>
                 <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
                 <link rel="stylesheet" href="/css/style.css">
-                <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-                <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+                <script src="/js/jquery.1.11.1.min.js"></script>
+                <script src="/js/jquery-ui.1.11.0.min.js"></script>
                 <script>
                 $(function() {
                         $( "#accordion" ).accordion();

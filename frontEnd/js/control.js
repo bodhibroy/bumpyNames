@@ -1,4 +1,17 @@
+var COIN_COUNTDOWN_INTERVAL = 10
+
 var game_stopped = false
+
+var coin_count_down = 10000
+function coinLoop() {
+	coin_count_down -= COIN_COUNTDOWN_INTERVAL
+	
+	if (coin_count_down <= 0) {
+		pushCoin()
+	}
+
+	setTimeout(coinLoop, COIN_COUNTDOWN_INTERVAL)
+}
 
 function pushCoin(){
 	$.getJSON('/game_state', function(data){
@@ -34,8 +47,6 @@ function pushCoin(){
 	});
 	next_try_interval = getNextInterarrivalTime()
 	console.log('Next try in ' + (next_try_interval/1000.0) + ' sec')
-	setTimeout(pushCoin, next_try_interval);
-	
 }
 
 
@@ -44,6 +55,10 @@ function validateFreq() {
 	if (myFreq.match(/^\d+$/g) == null) {
 		document.someForm.freq.value = '2000'
 	}
+	if (parseInt(document.someForm.freq.value) <= 0) {
+		document.someForm.freq.value = '2000'
+	}
+	coin_count_down = parseInt(document.someForm.freq.value)
 }
 
 function getNextInterarrivalTime() {

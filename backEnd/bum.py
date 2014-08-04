@@ -303,7 +303,7 @@ def html_dump_queries(queries):
     return "".join(L)
 
 def html_dump():
-    tables = ['players', 'coins', 'game_state', 'messages', 'gropes']
+    tables = ['players', 'game_state', 'messages', 'coins', 'gropes']
     return """<head><link rel="stylesheet" href="/css/style.css"></head>""" + html_dump_queries([(tbl, "SELECT * FROM " + tbl) for tbl in tables])
 
 

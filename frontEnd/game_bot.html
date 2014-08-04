@@ -2,7 +2,7 @@
 <head>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script>
-var DEFAULT_GAME_LOOP_FREQUENCY_IN_MS = 75
+var DEFAULT_GAME_LOOP_FREQUENCY_IN_MS = 200 // 150 // 75
 var GAME_LOOP_FREQUENCY_IN_MS = DEFAULT_GAME_LOOP_FREQUENCY_IN_MS
 
 var DEFAULT_P_RANDOM_MOVE = 0.01
@@ -60,6 +60,13 @@ var defaultProfession = 'Worker'
 
 function getParticulars() {
 
+	GAME_LOOP_INTERVAL_IN_MS = prompt("Please enter game loop interval", DEFAULT_GAME_LOOP_FREQUENCY_IN_MS);
+	if ((GAME_LOOP_INTERVAL_IN_MS != null) && (!isNaN(parseInt(GAME_LOOP_INTERVAL_IN_MS)))) {
+		GAME_LOOP_INTERVAL_IN_MS = parseInt(GAME_LOOP_INTERVAL_IN_MS)
+	} else {
+		GAME_LOOP_INTERVAL_IN_MS = DEFAULT_GAME_LOOP_FREQUENCY_IN_MS
+	}
+
 	K_d = prompt("Please enter K_d", default_K_d);
 	if ((K_d != null) && (!isNaN(parseFloat(K_d)))) {
 		K_d = Math.abs(parseFloat(K_d))
@@ -72,13 +79,6 @@ function getParticulars() {
 		K_od = Math.abs(parseFloat(K_od))
 	} else {
 		K_od = default_K_od
-	}
-
-	GAME_LOOP_INTERVAL_IN_MS = prompt("Please enter game loop interval", DEFAULT_GAME_LOOP_FREQUENCY_IN_MS);
-	if ((GAME_LOOP_INTERVAL_IN_MS != null) && (!isNaN(parseInt(GAME_LOOP_INTERVAL_IN_MS)))) {
-		GAME_LOOP_INTERVAL_IN_MS = parseInt(GAME_LOOP_INTERVAL_IN_MS)
-	} else {
-		GAME_LOOP_INTERVAL_IN_MS = DEFAULT_GAME_LOOP_FREQUENCY_IN_MS
 	}
 
 	P_RANDOM_MOVE = prompt("Please enter P_RANDOM_MOVE", DEFAULT_P_RANDOM_MOVE);
@@ -104,9 +104,6 @@ function getParticulars() {
 
 	console.log('Game bot params: (K_d, K_od, GL_Interval, P_rm, P_rmcg) = (' + K_d + ', ' + K_od + ', ' + GAME_LOOP_INTERVAL_IN_MS + 'ms' + ', ' + P_RANDOM_MOVE + ', ' + P_RANDOM_MOVE_COUNT_GEOM + ')')
 	A_BIG_DISTANCE = (HEIGHT + WIDTH) * (3 + Math.max(K_d, 1) + Math.max(K_od, 1))
-
-	icon = prompt("Please select an icon", defaultIcon);
-	if (icon == null) { K_od = defaultIcon }
 
 	name = prompt("Please enter your name", defaultName);
 	if (name == null) { name = defaultName }
@@ -307,8 +304,24 @@ hover_spot.location_x = HOVER_SPOT_X
 hover_spot.location_y = HOVER_SPOT_Y
 
 
+function isGameStopped() {
+	var game_stopped = false
+
+	if ((game_state != null) && (game_state.game != null)) {
+		for (var i = 0; i < game_state.game.length; i++) {
+			if (game_state.game[i].property == "Game Stop") {
+				game_stopped = true
+				break
+			}
+		}
+	}
+
+	return game_stopped
+}
+
 function doGameBotLoop() {
-	if (awaiting_message) {
+	if (awaiting_message || isGameStopped()) {
+		updateGameState(nop, nop)
 		setTimeout(doGameBotLoop, GAME_LOOP_INTERVAL_IN_MS)
 		return
 	}
@@ -335,6 +348,7 @@ function doGameBotLoop() {
 
 		num_random_moves -= 1
 
+		updateGameState(nop, nop)
 		setTimeout(doGameBotLoop, GAME_LOOP_INTERVAL_IN_MS)
 		return		
 	}
@@ -456,11 +470,14 @@ function startView() {
 			game_state = data
 			me = game_state.me
 			console.log('Updating defaults...')
-			defaultName = me.name
-			defaultIcon = me.icon
-			defaultGender = me.sex
-			defaultRace = me.race
-			defaultProfession = me.class
+			if (me != null) {
+				defaultName = me.name
+				defaultIcon = me.icon
+				defaultGender = me.sex
+				defaultRace = me.race
+				defaultProfession = me.class
+			}
+			console.log('Defaults: ', defaultName, defaultIcon, defaultGender, defaultRace, defaultProfession)
 		} else {
 			console.log('Unable to update defaults...')
 		}

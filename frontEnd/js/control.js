@@ -1,9 +1,15 @@
+var game_stopped = false
+
 function pushCoin(){
 	$.getJSON('/game_state', function(data){
 		game_state = data
 		coins = game_state['coins']
 		players = game_state['players']
 		//var locations = []
+
+		if (game_stopped) {
+			return
+		}
 		
 		var randomX=Math.floor(Math.random()*38);
 		var randomY=Math.floor(Math.random()*19);
@@ -66,6 +72,7 @@ function setGameStateStop() {
 	url = '/set_game_state/Game Stop,Freeze,0,0/' + KING_B0DH1_PA55W0RD
 	actionDesc = 'Set game state to STOP'
 	takeControlAction(url, actionDesc)
+	game_stopped = true
 }
 
 function clearGameState() {
@@ -73,6 +80,7 @@ function clearGameState() {
 	url = '/set_game_state/Game On,The show must go on...,0,0/' + KING_B0DH1_PA55W0RD
 	actionDesc = 'reset game state'
 	takeControlAction(url, actionDesc)
+	game_stopped = false
 }
 
 function clearCoinScoresAndMoves() {

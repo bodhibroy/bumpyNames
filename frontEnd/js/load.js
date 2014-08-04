@@ -297,5 +297,5 @@ function startView() {
 	canvas=document.getElementById("myCanvas");
 	context=canvas.getContext('2d');
 	setInterval(updateGameState, 200);
-	setInterval(checkPlayerExists, 30000)
+	setInterval(checkPlayerExists, 10000)
 }

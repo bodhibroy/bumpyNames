@@ -52,12 +52,13 @@ var num_random_moves = 0
 
 // ------------------------
 
+var defaultName = 'Busy Bee'
+var defaultIcon = 'Animal_Icons_bee.png'
+var defaultGender = 'Flip Over to Check'
+var defaultRace = 'Bee'
+var defaultProfession = 'Worker'
+
 function getParticulars() {
-	defaultName = 'Busy Bee'
-	defaultIcon = 'Animal_Icons_bee.png'
-	defaultGender = 'Flip Over to Check'
-	defaultRace = 'Bee'
-	defaultProfession = 'Worker'
 
 	K_d = prompt("Please enter K_d", default_K_d);
 	if ((K_d != null) && (!isNaN(parseFloat(K_d)))) {
@@ -449,8 +450,24 @@ function updateView() {
 function startView() {
 	canvas=document.getElementById("myCanvas");
 	context=canvas.getContext('2d');
-	getParticulars()
-	submitParticularsThenStartGame()
+
+    $.getJSON('/game_state', function(data){
+    	if (data != null) {
+			game_state = data
+			me = game_state.me
+			console.log('Updating defaults...')
+			defaultName = me.name
+			defaultIcon = me.icon
+			defaultGender = me.sex
+			defaultRace = me.race
+			defaultProfession = me.class
+		} else {
+			console.log('Unable to update defaults...')
+		}
+		getParticulars()
+		submitParticularsThenStartGame()
+	})
+
 }
 
 </script>

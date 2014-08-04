@@ -46,7 +46,6 @@ function pushCoin(){
 		}
 	});
 	next_try_interval = getNextInterarrivalTime()
-	console.log('Next try in ' + (next_try_interval/1000.0) + ' sec')
 }
 
 
@@ -59,6 +58,7 @@ function validateFreq() {
 		document.someForm.freq.value = '2000'
 	}
 	coin_count_down = parseInt(document.someForm.freq.value)
+	console.log('Next try in ' + (coin_count_down/1000.0) + ' sec')
 }
 
 function getNextInterarrivalTime() {

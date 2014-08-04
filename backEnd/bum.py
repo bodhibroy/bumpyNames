@@ -16,7 +16,6 @@ import random
 # Random Defines...
 #####################################################################
 
-#KING_B0DH1_PA55W0RD = "BP,YMHaMD,AtPaGBDoyK"
 KING_B0DH1_PA55W0RD = "itobwywmtbfsflutsdkwyeomputpowiyscitujcituestitiamtycitujcituibsnicfytibstsmmaibtaiwtdibmlmabllycystysmhttatlccetytiwbhfarifoycitujcituestitiamtycitujcituaesiwimtictibsnicfytibstsmmaibtaiwtdibmlmabllyaikimeuftbikywjlmwsdiyibsnicfytibstsmmaibtaiwtdibmlmabllyibsnicfytitobwywmtbibsnicfytitobwywmtb"
 GAM3_B07_PA55W0RD = "ssbtyaiwblditsetesawbldits"
 
@@ -93,6 +92,13 @@ def serve_js(filename):
     try:
         #return send_file('../frontEnd/js/{0}'.format(filename), mimetype="application/javascript", as_attachment=False, attachment_filename=None, add_etags=True, cache_timeout=None, conditional=False)
         return send_file('../frontEnd/js/{0}'.format(filename), mimetype="application/javascript", as_attachment=False, attachment_filename=None, add_etags=True)
+    except Exception:
+        return "Not Found. (Really... I tried...)", 404
+
+@app.route("/css/<filename>")
+def serve_css(filename):
+    try:
+        return send_file('../frontEnd/css/{0}'.format(filename), mimetype="text/css", as_attachment=False, attachment_filename=None, add_etags=True)
     except Exception:
         return "Not Found. (Really... I tried...)", 404
 
@@ -294,7 +300,7 @@ maps = {'icon' : show_img, 'ip': link_wrap_ip, 'groper': link_wrap_ip, 'gropee':
 
 
 def html_dump_queries(queries):
-    L = ["".join(["<div><h3>", title, "</h3><p>", db_mgmt.generate_HTML_table(db_mgmt.get_query_results(q), maps=maps), "</p></div><br/>"]) for title, q in queries]
+    L = ["".join(["<h3>", title, "</h3><div><p>", db_mgmt.generate_HTML_table(db_mgmt.get_query_results(q), maps=maps), "</p></div>"]) for title, q in queries]
     return "".join(L)
 
 def html_dump():
@@ -332,7 +338,23 @@ def high_fidelity_records_html():
 
 @app.route("/game_stats")
 def game_stats():
-    return html_dump_queries(db_mgmt.get_bumpy_queries())
+    header = """</head>
+                <title>Some Exploratory Data Analysis</title>
+                <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+                <link rel="stylesheet" href="/css/style.css">
+                <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+                <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+                <script>
+                $(function() {
+                        $( "#accordion" ).accordion();
+                    });
+                </script>
+                </head>
+                <body>
+                <h1>Some Exploratory Data Analysis</h1>
+                <div id="accordion">"""
+    footer = "</div></body>"
+    return "".join([header, html_dump_queries(db_mgmt.get_bumpy_queries()), footer]), 200
 
 
 #####################################################################

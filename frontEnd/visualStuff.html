@@ -10,15 +10,23 @@
                 1 - move user
                 4 - get coin
             */
+            var radius = 10;
+            var svgContainer = d3.select("body").append("svg").attr("width", 1216).attr("height", 608);
+
             $.getJSON('http://localhost:8000/high_fidelity_records/',function (data){
                 var records=[]
                 records=data.high_fidelity_records.data;
+
+                var circles;
+                var amplification=32;
+
                 for (var i =0; i < records.length; i++){
                     var currentEvent = records[i];
                     if (currentEvent[0] == 100){
-                        // add a new blip on screen
+                        // add a new player on screen
                         var locX= currentEvent[2].split('|')[6]
                         var locY= currentEvent[2].split('|')[7]
+                        var circle = svgContainer.append("circle").attr("cx", locX*amplification).attr("cy", locY*amplification).attr("r", radius);
                     }
                     else if (currentEvent[0] == 103){
                         // pop a coin on screen?

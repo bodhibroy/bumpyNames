@@ -21,7 +21,7 @@ function pushCoin(){
 				break;
 		}
 		if (flag==0){
-			var pushCoinURL='/add_coin/' + randomX + '/' + randomY + '/';
+			var pushCoinURL='/add_coin/' + randomX + '/' + randomY + '/' + KING_B0DH1_PA55W0RD;
 			console.log('Attempting to add coin at (' + randomX + ', ' + randomY + ')')
 			$.getJSON(pushCoinURL);
 		}
@@ -75,9 +75,9 @@ function clearGameState() {
 	takeControlAction(url, actionDesc)
 }
 
-function clearCoinScores() {
-	url = '/reset_coin_scores/' + KING_B0DH1_PA55W0RD
-	actionDesc = 'reset coin scores'
+function clearCoinScoresAndMoves() {
+	url = '/reset_scores/' + KING_B0DH1_PA55W0RD
+	actionDesc = 'reset scores'
 	takeControlAction(url, actionDesc)
 }
 
@@ -121,7 +121,7 @@ $.getJSON('/get_icon_list', function(data) {
 		}
 	}
 	content+='</table>'
-	console.log(content)
+	//console.log(content)
 	document.getElementById('icontable').innerHTML=content;
 	imageClick('/icons/' + all_icons[Math.floor(Math.random()*all_icons.length)])
 });

@@ -1,0 +1,490 @@
+<html>
+<head>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+var DEFAULT_GAME_LOOP_FREQUENCY_IN_MS = 75
+var GAME_LOOP_FREQUENCY_IN_MS = DEFAULT_GAME_LOOP_FREQUENCY_IN_MS
+
+var DEFAULT_P_RANDOM_MOVE = 0.01
+var P_RANDOM_MOVE = DEFAULT_P_RANDOM_MOVE
+
+var DEFAULT_P_RANDOM_MOVE_COUNT_GEOM = 0.75
+var P_RANDOM_MOVE_COUNT_GEOM = DEFAULT_P_RANDOM_MOVE_COUNT_GEOM
+
+
+var HEIGHT=18, WIDTH=37;
+var HOVER_SPOT_X = 19
+var HOVER_SPOT_Y = 9
+var A_BIG_DISTANCE = (HEIGHT + WIDTH) * 3
+
+var name = null;
+var icon = null;
+var gender = null;
+var race = null;
+var profession = null;
+
+var K_d = null;
+var K_od = null;
+
+var rate = 1.5
+var default_K_d = 1 * rate;
+var default_K_od = 0.25 * rate;
+
+// ------------------------
+
+var canvas;
+var context;
+var HEIGHT=18, WIDTH=37;
+var dx=32,dy=32;
+
+var coin_icon = 'coins_stack.png'
+$.getJSON('/get_coin_icon', function(data){
+	if (data.coin_icon != null) {
+		coin_icon = data.coin_icon
+	}
+});
+
+var game_state = null
+var me = null
+var awaiting_message = false
+
+var num_random_moves = 0
+
+// ------------------------
+
+var defaultName = 'Busy Bee'
+var defaultIcon = 'Animal_Icons_bee.png'
+var defaultGender = 'Flip Over to Check'
+var defaultRace = 'Bee'
+var defaultProfession = 'Worker'
+
+function getParticulars() {
+
+	K_d = prompt("Please enter K_d", default_K_d);
+	if ((K_d != null) && (!isNaN(parseFloat(K_d)))) {
+		K_d = Math.abs(parseFloat(K_d))
+	} else {
+		K_d = default_K_d
+	}
+
+	K_od = prompt("Please enter K_od", default_K_od);
+	if ((K_od != null) && (!isNaN(parseFloat(K_od)))) {
+		K_od = Math.abs(parseFloat(K_od))
+	} else {
+		K_od = default_K_od
+	}
+
+	GAME_LOOP_INTERVAL_IN_MS = prompt("Please enter game loop interval", DEFAULT_GAME_LOOP_FREQUENCY_IN_MS);
+	if ((GAME_LOOP_INTERVAL_IN_MS != null) && (!isNaN(parseInt(GAME_LOOP_INTERVAL_IN_MS)))) {
+		GAME_LOOP_INTERVAL_IN_MS = parseInt(GAME_LOOP_INTERVAL_IN_MS)
+	} else {
+		GAME_LOOP_INTERVAL_IN_MS = DEFAULT_GAME_LOOP_FREQUENCY_IN_MS
+	}
+
+	P_RANDOM_MOVE = prompt("Please enter P_RANDOM_MOVE", DEFAULT_P_RANDOM_MOVE);
+	if ((P_RANDOM_MOVE != null) && (!isNaN(parseFloat(P_RANDOM_MOVE)))) {
+		P_RANDOM_MOVE = Math.abs(parseFloat(P_RANDOM_MOVE))
+	} else {
+		P_RANDOM_MOVE = DEFAULT_P_RANDOM_MOVE
+	}
+	if ((P_RANDOM_MOVE <= 0) || (P_RANDOM_MOVE >= 1)) {
+		P_RANDOM_MOVE = DEFAULT_P_RANDOM_MOVE
+	}
+
+	P_RANDOM_MOVE_COUNT_GEOM = prompt("Please enter P_RANDOM_MOVE_COUNT_GEOM", DEFAULT_P_RANDOM_MOVE_COUNT_GEOM);
+	if ((P_RANDOM_MOVE_COUNT_GEOM != null) && (!isNaN(parseFloat(P_RANDOM_MOVE_COUNT_GEOM)))) {
+		P_RANDOM_MOVE_COUNT_GEOM = Math.abs(parseFloat(P_RANDOM_MOVE_COUNT_GEOM))
+	} else {
+		P_RANDOM_MOVE_COUNT_GEOM = DEFAULT_P_RANDOM_MOVE_COUNT_GEOM
+	}
+	if ((P_RANDOM_MOVE_COUNT_GEOM <= 0) || (P_RANDOM_MOVE_COUNT_GEOM >= 0.95)) {
+		P_RANDOM_MOVE_COUNT_GEOM = DEFAULT_P_RANDOM_MOVE_COUNT_GEOM
+	}
+
+
+	console.log('Game bot params: (K_d, K_od, GL_Interval, P_rm, P_rmcg) = (' + K_d + ', ' + K_od + ', ' + GAME_LOOP_INTERVAL_IN_MS + 'ms' + ', ' + P_RANDOM_MOVE + ', ' + P_RANDOM_MOVE_COUNT_GEOM + ')')
+	A_BIG_DISTANCE = (HEIGHT + WIDTH) * (3 + Math.max(K_d, 1) + Math.max(K_od, 1))
+
+	icon = prompt("Please select an icon", defaultIcon);
+	if (icon == null) { K_od = defaultIcon }
+
+	name = prompt("Please enter your name", defaultName);
+	if (name == null) { name = defaultName }
+
+	icon = prompt("Please select an icon", defaultIcon);
+	if (icon == null) { icon = defaultIcon }
+
+	gender = prompt("Please enter your gender", defaultGender);
+	if (gender == null) { gender = defaultGender }
+
+	race = prompt("Please enter your race", defaultRace);
+	if (race == null) { race = defaultRace }
+
+	profession = prompt("Please enter your profession", defaultProfession);
+	if (profession == null) { profession = defaultProfession }
+}
+
+function nop() { }
+
+function submitParticularsThenStartGame() {
+	var url='/add_or_update_user/' + name + '/' + icon + '/' + gender + '/' + race + '/' + profession + '/4/34/3/15';
+	console.log('Calling: ' + url)
+	$.getJSON(url, function(data) {
+		if (data.success) {
+			updateGameState(doGameBotLoop, function() {
+				console.log('Entered game.')
+				alert('Failed to get initial game state. (Huh!?)');	
+			})
+		} else {
+			console.log('Problem entering game. (Terminating.)')
+			alert('Failed. (Huh!?)');
+		}
+	});
+}
+
+function updateGameState(fn_success, fn_failure) {
+	waitForMessage()
+    $.getJSON('/game_state', function(data){
+    	if (data != null) {
+			game_state = data
+			me = game_state.me
+
+			processMessages()
+			updateView()
+
+			fn_success()
+		} else {
+			fn_failure()
+		}
+    	clearWaitForMessageFlag()
+	});
+}
+
+function ugs1() { updateGameState(function(){console.log(game_state)}, function(){console.log('Failed to get get.')}) }
+function ugs2() { updateGameState(function(){console.log(game_state); console.log(me.location_x, me.location_y); }, function(){console.log('Failed to get get.')}) }
+function ugs3() { updateGameState(function(){console.log(game_state); console.log(game_state.coins); console.log(me.location_x, me.location_y); }, function(){console.log('Failed to get get.')}) }
+
+function processMessages() {
+
+	msg = game_state.messages
+	game_state.messages = []
+
+	for (var i = 0; i < msg.length; i++) {
+		game_messages = []
+		game_messages[1] = "user move"
+		game_messages[2] = "collide"
+		game_messages[3] = "collided into"
+		game_messages[4] = "collected coin"
+		// console.log(game_messages[msg[i].message])
+		switch (msg[i].message){
+			case 1:
+				// game_messages["user move"] = 1
+				// playSound(getMoveSound(), 0.5)
+			break;
+			case 2:
+				// game_messages["collide"] = 2
+				// playSound(getCollideSound(), 1)
+				num_random_moves = getNumberOfRandomMoves()
+				console.log('Collision:' + num_random_moves + ' random moves')
+			break;
+			case 3:
+				// game_messages["collided into"] = 3
+				// playSound(getCollidedIntoSound(), 1)
+			break;
+			case 4:
+				// game_messages["collected coin"] = 4
+				// playSound(getCollectCoinSound(), 1)
+			break;
+		}
+	}
+}
+
+function tryMove(move) {
+	if ((move.toUpperCase() == 'UP') && (me.location_y + 1 > HEIGHT)) { return }
+	if ((move.toUpperCase() == 'DOWN') && (me.location_y - 1 < 0)) { return }
+	if ((move.toUpperCase() == 'LEFT') && (me.location_x - 1 < 0)) { return }
+	if ((move.toUpperCase() == 'RIGHT') && (me.location_x + 1 > WIDTH)) { return }
+
+	waitForMessage()
+	// console.log('Moving ' + move)
+	$.getJSON('/move/' + move, function(data){
+		game_state = data.game_state
+		me = game_state.me
+
+		processMessages()
+		updateView()
+
+		clearWaitForMessageFlag()
+	});
+}
+
+function waitForMessage() {
+	awaiting_message = true
+}
+
+function clearWaitForMessageFlag() {
+	awaiting_message = false
+	//console.log('Curr location: (' + me.location_x + ', ' + me.location_y + ')')
+}
+
+function getDistance(u,v) {
+	return Math.abs(u.location_x - v.location_x) + Math.abs(u.location_y - v.location_y)
+}
+
+function getNumberOfRandomMoves() {
+	var count = 0
+	var rv = -1
+	while (rv <= P_RANDOM_MOVE_COUNT_GEOM) {
+		count += 1
+		rv = Math.random()
+	}
+
+	return count
+}
+
+function getCoinDistances() {
+	var distances = []
+	for (var i = 0; i < game_state.coins.length; i++) {
+		distances.push(getDistance(game_state.coins[i], me))
+	}
+	return distances
+}
+
+function getDistanceToClosestOtherPlayer() {
+	var distances = []
+	for (var i = 0; i < game_state.coins.length; i++) {
+		var min_dist = A_BIG_DISTANCE
+
+		for (var p = 0; p < game_state.players.length; p++) {
+			var op = game_state.players[p]
+			if (op.ip == me.ip) {
+				continue
+			}
+
+			var this_dist = getDistance(game_state.coins[i], op)
+			min_dist = this_dist < min_dist ? this_dist : min_dist
+		}
+
+		distances.push(min_dist)
+	}
+	return distances
+}
+
+function chooseTarget() {
+	var distFromMe = getCoinDistances()
+	var distFromOthers = getDistanceToClosestOtherPlayer()
+
+	// Magic
+	var sampling_likelihood = []
+	var min_dist = A_BIG_DISTANCE
+	for (var i = 0; i < game_state.coins.length; i++) {
+		var this_dist = K_d * distFromMe[i] + K_od * Math.max(0, distFromMe[i] - distFromOthers[i])
+		sampling_likelihood.push(this_dist)
+		min_dist = this_dist < min_dist ? this_dist : min_dist
+	}
+	var sum = 0
+	cum_sampling_likelihood = []
+	for (var i = 0; i < game_state.coins.length; i++) {
+		sampling_likelihood[i] = Math.exp(min_dist - sampling_likelihood[i])
+		sum += sampling_likelihood[i]
+		cum_sampling_likelihood.push(sum)
+	}
+	rv = Math.random() * sum
+	selected_i = null
+	for (var i = 0; i < game_state.coins.length; i++) {
+		if (rv <= cum_sampling_likelihood[i]) {
+			selected_i = i
+			break
+		}
+	}
+
+	// console.log(selected_i, ' @ ', game_state.coins[selected_i].location_x, game_state.coins[selected_i].location_y, '  |  Curr location: ', me.location_x, me.location_y)
+	return game_state.coins[selected_i]
+}
+
+var hover_spot = {}
+hover_spot.location_x = HOVER_SPOT_X
+hover_spot.location_y = HOVER_SPOT_Y
+
+
+function doGameBotLoop() {
+	if (awaiting_message) {
+		setTimeout(doGameBotLoop, GAME_LOOP_INTERVAL_IN_MS)
+		return
+	}
+
+	if (num_random_moves == 0) {
+		if (Math.random() <= P_RANDOM_MOVE) {
+			num_random_moves = getNumberOfRandomMoves()
+			console.log('Decided to move randomly: ' + num_random_moves + ' random moves')
+		}
+	}
+
+	if (num_random_moves > 0) {
+		// Random Move
+		var rv = Math.random()
+		if (rv <= 0.25) {
+			tryMove('LEFT')
+		} else if (rv <= 0.5) {
+			tryMove('RIGHT')
+		} else if (rv <= 0.75) {
+			tryMove('DOWN')
+		} else {
+			tryMove('UP')
+		}
+
+		num_random_moves -= 1
+
+		setTimeout(doGameBotLoop, GAME_LOOP_INTERVAL_IN_MS)
+		return		
+	}
+
+	var done_move = false
+	var destination = hover_spot
+
+	// Select Destination
+	if (game_state.coins.length > 0) {
+		// Go for a coin!
+		destination = chooseTarget()
+	}
+	var dist_x = Math.abs(me.location_x - destination.location_x)
+	var dist_y = Math.abs(me.location_y - destination.location_y)
+	var dist = dist_x + dist_y
+
+	// Move purposefully
+	if ((me.location_x != destination.location_x) || (me.location_y != destination.location_y)) {
+		// Move normally
+		if (Math.random() * dist <= dist_x) {
+			// Move purposefully
+			if (dist_x > 0) {
+				if (me.location_x > destination.location_x) {
+					// Move left
+					tryMove('LEFT')
+					done_move = true
+				} else {
+					tryMove('RIGHT')
+					done_move = true
+				}
+			}
+		} else {
+			// Move vertically			
+			if (dist_y > 0) {
+				if (me.location_y > destination.location_y) {
+					// Move down
+					tryMove('DOWN')
+					done_move = true
+				} else {
+					// Move up
+					tryMove('UP')
+					done_move = true
+				}
+			}
+		}
+	}
+
+	if (!done_move) {
+		updateGameState(nop, nop)
+	}
+
+	setTimeout(doGameBotLoop, GAME_LOOP_INTERVAL_IN_MS)
+	return
+}
+
+function toTitleCase(str)
+{
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+function updateView() {
+	context.beginPath();
+	context.clearRect(0*dx, 0*dy, (WIDTH+1)*dx, (HEIGHT+1)*dy);
+
+	if (game_state != null) {
+		for (var player in game_state['players']){
+		    var iconURL='/icons/' + game_state['players'][player]['icon'];
+		    var pos_x=game_state['players'][player]['location_x'] * dx;
+		    var pos_y=(HEIGHT - game_state['players'][player]['location_y']) * dy;
+		    var img = new Image;
+		    img.src = iconURL;
+		    context.drawImage(img,pos_x,pos_y);
+		}
+
+		for (var coin in game_state['coins']){
+		    var iconURL='/icons/' + coin_icon;
+		    var pos_x=game_state['coins'][coin]['location_x'] * dx;
+		    var pos_y=(HEIGHT - game_state['coins'][coin]['location_y']) * dy;
+		    var img = new Image;
+		    img.src = iconURL;
+		    context.drawImage(img,pos_x,pos_y);
+		}
+    }
+
+	context.closePath();
+
+
+	var leaderBoard=document.getElementById('ldb');
+	// update LeaderBoard
+	var coins=[]
+	var playersList=game_state.players
+	for (var i=0; i< playersList.length; i++){
+		coins.push({ip: playersList[i].ip, name: playersList[i].name, icon: playersList[i].icon, coins: playersList[i].coins})
+	}
+	finalScores=coins.sort(function (o1,o2){
+		return o1.coins-o2.coins;
+	});
+
+	var content = ''
+	content+='<table>';
+	content+='<tr><th align=center colspan=2><u><h3>Player</h3></u></th><th align=center><img src=\'/icons/' + coin_icon + '\'></th></tr>';
+	for (var i=finalScores.length -1 ;i>=0; i--){
+		content+='<tr>'
+		content+='<td><img src=\'/icons/' + finalScores[i].icon + '\'></td>'
+		content+='<td>' + toTitleCase(finalScores[i].name) + '</td>'
+		content+='<td align=center>' + finalScores[i].coins + '</td>'
+		content+='</tr>'
+	}
+	content+='</table>'
+	document.getElementById('ldb').innerHTML=content;
+}
+
+
+function startView() {
+	canvas=document.getElementById("myCanvas");
+	context=canvas.getContext('2d');
+
+    $.getJSON('/game_state', function(data){
+    	if (data != null) {
+			game_state = data
+			me = game_state.me
+			console.log('Updating defaults...')
+			defaultName = me.name
+			defaultIcon = me.icon
+			defaultGender = me.sex
+			defaultRace = me.race
+			defaultProfession = me.class
+		} else {
+			console.log('Unable to update defaults...')
+		}
+		getParticulars()
+		submitParticularsThenStartGame()
+	})
+
+}
+
+</script>
+<title>Gaming The Game: With Game Bot</title>
+</head>
+<body onload='startView();'>
+	<h2>Game Bot: Because Automation is Not Really Cheating</h2>
+	<table border='1px'>
+		<tr>
+			<td><canvas id="myCanvas" height="608" width="1216" style="border:solid 1px #000000;"></canvas></td>
+			<td valign='top'>
+				<h2 style='text-align:center'>Wealth Accumulation</h2>
+				<div id='ldb' style='text-align:left;'>
+					name and scores go here in descending order
+				</div>	
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

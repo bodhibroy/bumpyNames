@@ -102,6 +102,10 @@ def serve_css(filename):
     except Exception:
         return "Not Found. (Really... I tried...)", 404
 
+@app.route('/visualStuff.html')
+def server_visual():
+    #return app.send_static_file('game.html')
+    return send_file('../frontEnd/visualStuff.html')
 
 #####################################################################
 # Global Database Management

@@ -62,10 +62,10 @@ function pushCoin(){
 function validateFreq() {
 	myFreq = document.someForm.freq.value
 	if (myFreq.match(/^\d+$/g) == null) {
-		document.someForm.freq.value = '2000'
+		document.someForm.freq.value = '1000'
 	}
-	if (parseInt(document.someForm.freq.value) <= 0) {
-		document.someForm.freq.value = '2000'
+	if (parseInt(document.someForm.freq.value) < 100) {
+		document.someForm.freq.value = '1000'
 	}
 	coin_count_down = parseInt(document.someForm.freq.value)
 	console.log('Next try in ' + (coin_count_down/1000.0) + ' sec')

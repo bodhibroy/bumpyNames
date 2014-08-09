@@ -648,7 +648,7 @@ def add_coin_at_location(location_x, location_y):
             cursor.execute("INSERT INTO coins VALUES(%s, %s)", (location_x, location_y))
 
             record_type = 'placed coin'
-            cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([str(location_x), str(location_y)])))
+            # cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([str(location_x), str(location_y)])))
 
         cursor.execute("COMMIT;")
 

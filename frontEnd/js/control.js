@@ -29,7 +29,7 @@ function pushCoin(){
 		
 		max_coin_mode = document.getElementsByName("logistic")[0].checked
 
-		if ((!max_coin_mode) || (coins.length < 60)) {
+		if ((!max_coin_mode) || (coins.length < 40)) {
 			var flag =0;
 			for (var i=0;i<coins.length; i++){
 				if (coins[i]['location_x'] == randomX && coins[i]['location_y'] == randomY)

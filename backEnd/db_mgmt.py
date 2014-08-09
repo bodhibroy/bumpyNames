@@ -220,7 +220,7 @@ def db_seed(num_rnd = 10, p_g = 0.25, p_gv1 = 0.2, p_gv2 = 0.35):
                     cursor.execute("INSERT INTO gropes VALUES ('10.0.0.{0}', '10.0.0.{1}', {2});".format(101+k1,101+k2,random.randint(1,12)))
 
     record_type = 'misc'
-    cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, 'DB randomly seeded.'))
+    # cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, 'DB randomly seeded.'))
     conn.commit()
     conn.close()
 
@@ -648,7 +648,7 @@ def add_coin_at_location(location_x, location_y):
             cursor.execute("INSERT INTO coins VALUES(%s, %s)", (location_x, location_y))
 
             record_type = 'placed coin'
-            cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([str(location_x), str(location_y)])))
+            # cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([str(location_x), str(location_y)])))
 
         cursor.execute("COMMIT;")
 

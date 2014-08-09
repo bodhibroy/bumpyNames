@@ -780,7 +780,7 @@ def attempt_move(ip, x_move, y_move):
                 ret = add_message(ip, game_messages["user move"], cursor = cursor)
 
                 record_type = 'user move'
-                cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, str(this_user['location_x']), str(this_user['location_y']), str(location_x), str(location_y)])))
+                # cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, str(this_user['location_x']), str(this_user['location_y']), str(location_x), str(location_y)])))
 
                 num_coins = take_coins_at_location(location_x, location_y, cursor)
 
@@ -789,7 +789,7 @@ def attempt_move(ip, x_move, y_move):
                         ret = increment_coin_record(ip, cursor)
                         ret = add_message(ip, game_messages['collected coin'], cursor = cursor)
                         record_type = 'collected coin'
-                        cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, str(location_x), str(location_y)])))
+                        # cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([ip, str(location_x), str(location_y)])))
             else:
                 # Collision
                 # grunts on both sides
@@ -798,7 +798,7 @@ def attempt_move(ip, x_move, y_move):
                 add_message(user_at_other_location['ip'], game_messages["collided into"], cursor = cursor)
 
                 record_type = 'player collision'
-                cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([str(ip), str(this_user['location_x']), str(this_user['location_y']), str(user_at_other_location['ip']), str(location_x), str(location_y)])))
+                # cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, '|'.join([str(ip), str(this_user['location_x']), str(this_user['location_y']), str(user_at_other_location['ip']), str(location_x), str(location_y)])))
 
         cursor.execute("COMMIT;")
 

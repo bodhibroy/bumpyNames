@@ -27,22 +27,26 @@ function pushCoin(){
 		var randomX=Math.floor(Math.random()*38);
 		var randomY=Math.floor(Math.random()*19);
 		
-		var flag =0;
-		for (var i=0;i<coins.length; i++){
-			if (coins[i]['location_x'] == randomX && coins[i]['location_y'] == randomY)
-				flag = 1;
-				break;
-		}
-		if (flag==0)
-		for (var player in players){
-			if (player['location_x']==randomX && player['location_y']==randomY)
-				flag = 1;
-				break;
-		}
-		if (flag==0){
-			var pushCoinURL='/add_coin/' + randomX + '/' + randomY + '/' + KING_B0DH1_PA55W0RD;
-			console.log('Attempting to add coin at (' + randomX + ', ' + randomY + ')')
-			$.getJSON(pushCoinURL);
+		max_coin_mode = document.getElementsByName("logistic")[0].checked
+
+		if ((!max_coin_mode) || (coins.length < 60)) {
+			var flag =0;
+			for (var i=0;i<coins.length; i++){
+				if (coins[i]['location_x'] == randomX && coins[i]['location_y'] == randomY)
+					flag = 1;
+					break;
+			}
+			if (flag==0)
+			for (var player in players){
+				if (player['location_x']==randomX && player['location_y']==randomY)
+					flag = 1;
+					break;
+			}
+			if (flag==0){
+				var pushCoinURL='/add_coin/' + randomX + '/' + randomY + '/' + KING_B0DH1_PA55W0RD;
+				console.log('Attempting to add coin at (' + randomX + ', ' + randomY + ')')
+				$.getJSON(pushCoinURL);
+			}
 		}
 	});
 	next_try_interval = getNextInterarrivalTime()

@@ -31,7 +31,7 @@ function pushCoin(){
 		logistic_radios = document.getElementsByName("logistic")
 		for (var i = 0; i < logistic_radios.length; i++) {
 			if (logistic_radios[i].checked) {
-				logistic_radios = parseInt(logistic_radios[i].value)
+				coin_limit = parseInt(logistic_radios[i].value)
 			}
 		}
 

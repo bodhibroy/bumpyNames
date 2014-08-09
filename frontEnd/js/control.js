@@ -27,9 +27,15 @@ function pushCoin(){
 		var randomX=Math.floor(Math.random()*38);
 		var randomY=Math.floor(Math.random()*19);
 		
-		max_coin_mode = document.getElementsByName("logistic")[0].checked
+		coin_limit = 10000000
+		logistic_radios = document.getElementsByName("logistic")
+		for (var i = 0; i < logistic_radios.length; i++) {
+			if (logistic_radios[i].checked) {
+				logistic_radios = parseInt(logistic_radios[i].value)
+			}
+		}
 
-		if ((!max_coin_mode) || (coins.length < 40)) {
+		if (coins.length < coin_limit) {
 			var flag =0;
 			for (var i=0;i<coins.length; i++){
 				if (coins[i]['location_x'] == randomX && coins[i]['location_y'] == randomY)
@@ -74,9 +80,9 @@ function takeControlAction(url, actionDesc) {
 	$.getJSON(url, function(data) {
 		s = ''
 		if ((data == null) || (data.success == false)) {
-			s = "Failed to " + actionDesc + "."
+			s = "Failure: " + actionDesc
 		} else {
-			s = "Successfully " + actionDesc + "."
+			s = "Success: " + actionDesc
 		}
 		alert(s)
 		console.log('')
@@ -97,27 +103,27 @@ function setGameStateStop() {
 function clearGameState() {
 	// url = '/set_game_state/game%20on%2CThe%20show%20must%20go%20%2C1%2C1/' + KING_B0DH1_PA55W0RD
 	url = '/set_game_state/Game On,The show must go on...,0,0/' + KING_B0DH1_PA55W0RD
-	actionDesc = 'reset game state'
+	actionDesc = 'Reset game state'
 	takeControlAction(url, actionDesc)
 	game_stopped = false
 }
 
 function clearCoinScoresAndMoves() {
 	url = '/reset_scores/' + KING_B0DH1_PA55W0RD
-	actionDesc = 'reset scores'
+	actionDesc = 'Reset scores'
 	takeControlAction(url, actionDesc)
 }
 
 function clearCoinsFromMap() {
 	url = '/clear_coins/' + KING_B0DH1_PA55W0RD
-	actionDesc = 'clear coins from map'
+	actionDesc = 'Clear coins from map'
 	takeControlAction(url, actionDesc)
 }
 
 function resetDB() {
 	if(confirm('Really reset the DB?')) {
 		url = '/clear_db/' + KING_B0DH1_PA55W0RD
-		actionDesc = 'reset DB'
+		actionDesc = 'Reset DB'
 		takeControlAction(url, actionDesc)
 	}
 }

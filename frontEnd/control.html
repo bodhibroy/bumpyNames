@@ -13,7 +13,15 @@
 			<div>
 				<h3>Coin Generation</h3>
 				Generation Frequency: <input type="text" name="freq" maxlength='14' onChange='validateFreq();' onKeyUp='validateFreq();' value='10000'>ms (1s = 1000ms)<br>
-				<input type=checkbox name="logistic" value="logistic" checked>Limit to 40 Coins<br>
+				<input type=radio name="logistic" value=1000000>No (practical) limit<br>
+				<input type=radio name="logistic" value=80>Limit to 80 Coins
+				<input type=radio name="logistic" value=70>Limit to 70 Coins<br>
+				<input type=radio name="logistic" value=60>Limit to 60 Coins
+				<input type=radio name="logistic" value=50>Limit to 50 Coins<br>
+				<input type=radio name="logistic" value=40 checked>Limit to 40 Coins
+				<input type=radio name="logistic" value=30>Limit to 30 Coins<br>
+				<input type=radio name="logistic" value=20>Limit to 20 Coins
+				<input type=radio name="logistic" value=10>Limit to 10 Coins<br>
 				<input type=button value='Clear Coin Scores and Moves' onClick='clearCoinScoresAndMoves();'>
 				<input type=button value='Clear Coins from Map' onClick='clearCoinsFromMap();'>
 			</div>

@@ -149,6 +149,7 @@ def get_icon_list(my_filter = ""):
     icon_list = []
     icon_path = os.path.join(os.getcwd(), '..', 'frontEnd', 'icons')
     icon_list = [ f for f in os.listdir(icon_path) if os.path.isfile(os.path.join(icon_path,f)) and (my_filter.lower() in f.lower())]
+    icon_list.sort()
     return jsonify({'icons': icon_list}), 200
 
 @app.route("/get_coin_icon")
@@ -161,6 +162,7 @@ def get_sound_list(my_filter = ""):
     sound_list = []
     sound_path = os.path.join(os.getcwd(), '..', 'frontEnd', 'sounds')
     sound_list = [ f for f in os.listdir(sound_path) if os.path.isfile(os.path.join(sound_path,f)) and (my_filter.lower() in f.lower())]
+    sound_list.sort()
     return jsonify({'sounds': sound_list}), 200
 
 
@@ -221,6 +223,18 @@ def reset_coin_collection_scores(password = None):
     # Auth Ok
     d = {'success': False}
     d['success'] = db_mgmt.reset_scores()
+    return jsonify(d), 200
+
+@app.route("/clear_coins/")
+@app.route("/clear_coins/<password>")
+def clear_coins(password = None):
+    if (password != KING_B0DH1_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
+        # Authentication Failed
+        return jsonify({'success': False, 'authenticated': False}), 403
+
+    # Auth Ok
+    d = {'success': False}
+    d['success'] = db_mgmt.clear_coins()
     return jsonify(d), 200
 
 

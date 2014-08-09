@@ -690,6 +690,27 @@ def reset_scores():
             conn.close()
         return success
 
+def clear_coins():
+    conn = None
+    success = True
+    try:
+        conn = db_connection()
+
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM coins")
+        conn.commit()
+
+    except psycopg2.DatabaseError, e:
+        if conn:
+            conn.rollback()
+        success = False
+
+    finally:
+
+        if conn:
+            conn.close()
+        return success
+
 def get_grope_count_insert_if_not_present(ip1, ip2, cursor):
     cursor.execute("SELECT EXISTS (SELECT 1 from gropes WHERE groper=%s AND gropee=%s)", (ip1, ip2))
     found = False

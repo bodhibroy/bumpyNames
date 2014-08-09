@@ -104,6 +104,12 @@ function clearCoinScoresAndMoves() {
 	takeControlAction(url, actionDesc)
 }
 
+function clearCoinsFromMap() {
+	url = '/clear_coins/' + KING_B0DH1_PA55W0RD
+	actionDesc = 'clear coins from map'
+	takeControlAction(url, actionDesc)
+}
+
 function resetDB() {
 	if(confirm('Really reset the DB?')) {
 		url = '/clear_db/' + KING_B0DH1_PA55W0RD

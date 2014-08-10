@@ -696,6 +696,34 @@ def reset_scores():
             conn.close()
         return success
 
+def kick_player(ip):
+    conn = None
+    success = True
+    try:
+        conn = db_connection()
+
+        cursor = conn.cursor()
+        cursor.execute("BEGIN TRANSACTION;")
+        cursor.execute("LOCK TABLE players IN ACCESS EXCLUSIVE MODE;")
+
+        cursor.execute("DELETE FROM players WHERE ip=%s", (ip,))
+
+        record_type = 'player kicked'
+        if LOG_IN_HIGH_FIDELITY_RECORDS:
+            cursor.execute("INSERT INTO high_fidelity_records VALUES(%s,%s,%s)", (game_messages[record_type], record_type, 'Reset coin scores and move counts.'))
+        cursor.execute("COMMIT;")
+
+    except psycopg2.DatabaseError, e:
+        if conn:
+            conn.rollback()
+        success = False
+
+    finally:
+
+        if conn:
+            conn.close()
+        return success
+
 def clear_coins():
     conn = None
     success = True

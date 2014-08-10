@@ -18,6 +18,7 @@ import random
 
 KING_B0DH1_PA55W0RD = "itobwywmtbfsflutsdkwyeomputpowiyscitujcituestitiamtycitujcituibsnicfytibstsmmaibtaiwtdibmlmabllycystysmhttatlccetytiwbhfarifoycitujcituestitiamtycitujcituaesiwimtictibsnicfytibstsmmaibtaiwtdibmlmabllyaikimeuftbikywjlmwsdiyibsnicfytibstsmmaibtaiwtdibmlmabllyibsnicfytitobwywmtbibsnicfytitobwywmtb"
 GAM3_B07_PA55W0RD = "ssbtyaiwblditsetesawbldits"
+SOME_OTHER_PA55W0RD = "timdtimtotytimdtiasctimdtimschtimdtima"
 
 def get403ForbiddenMessage():
     forbiddenMessages = [u"запретный!", u'уходить.', u'Я устал...', u'Я хочу спать...', u'кто ты?', u'я сонный...']
@@ -237,6 +238,18 @@ def clear_coins(password = None):
     d['success'] = db_mgmt.clear_coins()
     return jsonify(d), 200
 
+@app.route("/kick_player/ip")
+@app.route("/kick_player/ip/<password>")
+def kick_player(ip, password = None):
+    if (password != SOME_OTHER_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
+        # Authentication Failed
+        return jsonify({'success': False, 'authenticated': False}), 403
+
+    # Auth Ok
+    d = {'success': False}
+    d['success'] = db_mgmt.kick_player(ip)
+    return jsonify(d), 200
+
 
 #####################################################################
 # Reading the Game State
@@ -309,27 +322,41 @@ def show_img(src):
     return "<IMG SRC=\'/icons/{0}\'/>".format(src)
 def link_wrap_ip(ip):
     return "<A HREF=\'{0}\'>{1}</A>".format(url_for('show_user', ip=ip), ip)
-maps = {'icon' : show_img, 'ip': link_wrap_ip, 'groper': link_wrap_ip, 'gropee': link_wrap_ip}
+default_maps = {'icon' : show_img, 'ip': link_wrap_ip, 'groper': link_wrap_ip, 'gropee': link_wrap_ip}
+
+def link_wrap_ip_adm(ip):
+    return "<A HREF=\'{0}\'>{1}</A> <A HREF=\'{2}\' TARGET=_blank>Kick</A>".format(url_for('show_user', ip=ip), ip, url_for('kick_player', ip=ip, password=SOME_OTHER_PA55W0RD))
+admin_maps = {'icon' : show_img, 'ip': link_wrap_ip_adm, 'groper': link_wrap_ip, 'gropee': link_wrap_ip}
 
 
-def html_dump_queries(queries):
-    L = ["".join(["<h3>", title, "</h3><div><p>", db_mgmt.generate_HTML_table(db_mgmt.get_query_results(q), maps=maps), "</p></div>"]) for title, q in queries]
+def html_dump_queries(queries, maps = None):
+    maps_ = maps
+    if maps_ is None:
+        maps_ = default_maps
+    L = ["".join(["<h3>", title, "</h3><div><p>", db_mgmt.generate_HTML_table(db_mgmt.get_query_results(q), maps=maps_), "</p></div>"]) for title, q in queries]
     return "".join(L)
 
 def html_dump():
     tables = ['players', 'game_state', 'messages', 'coins', 'gropes']
     return """<head><link rel="stylesheet" href="/css/style.css"></head>""" + html_dump_queries([(tbl, "SELECT * FROM " + tbl) for tbl in tables])
 
+def html_dump_admin():
+    tables = ['players', 'game_state', 'messages', 'coins', 'gropes']
+    return """<head><link rel="stylesheet" href="/css/style.css"></head>""" + html_dump_queries([(tbl, "SELECT * FROM " + tbl) for tbl in tables], admin_maps)
 
 @app.route("/show_user/<ip>")
 def show_user(ip):
     query_results = db_mgmt.get_query_results("SELECT * FROM players WHERE ip=\'{0}\'".format(ip), )
     
-    return """<head><link rel="stylesheet" href="/css/style.css"></head>""" + db_mgmt.generate_HTML_table(query_results, maps=maps), 200
+    return """<head><link rel="stylesheet" href="/css/style.css"></head>""" + db_mgmt.generate_HTML_table(query_results, maps=default_maps), 200
 
 @app.route("/show_all")
-def show_all():
-    return html_dump()
+@app.route("/show_all/password")
+def show_all(password = None):
+    if (password != SOME_OTHER_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
+        return html_dump()
+    else:
+        return html_dump_admin()
 
 @app.route("/dump_it_all")
 def dump_it_all():

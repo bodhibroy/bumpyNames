@@ -12,6 +12,7 @@ game_messages["placed coin"] = 103
 game_messages["player collision"] = 104
 
 game_messages["misc"] = 200
+game_messages["player kicked"] = 201
 
 game_messages_inv = {game_messages[k]: k for k in game_messages}
 

@@ -324,9 +324,9 @@ def link_wrap_ip(ip):
     return "<A HREF=\'{0}\'>{1}</A>".format(url_for('show_user', ip=ip), ip)
 default_maps = {'icon' : show_img, 'ip': link_wrap_ip, 'groper': link_wrap_ip, 'gropee': link_wrap_ip}
 
-def link_wrap_ip_adm(ip):
+def link_wrap_ip_admin(ip):
     return "<A HREF=\'{0}\'>{1}</A> <A HREF=\'{2}\' TARGET=_blank>Kick</A>".format(url_for('show_user', ip=ip), ip, url_for('kick_player', ip=ip, password=SOME_OTHER_PA55W0RD))
-admin_maps = {'icon' : show_img, 'ip': link_wrap_ip_adm, 'groper': link_wrap_ip, 'gropee': link_wrap_ip}
+admin_maps = {'icon' : show_img, 'ip': link_wrap_ip_admin, 'groper': link_wrap_ip, 'gropee': link_wrap_ip}
 
 
 def html_dump_queries(queries, maps = None):
@@ -351,7 +351,7 @@ def show_user(ip):
     return """<head><link rel="stylesheet" href="/css/style.css"></head>""" + db_mgmt.generate_HTML_table(query_results, maps=default_maps), 200
 
 @app.route("/show_all")
-@app.route("/show_all/password")
+@app.route("/show_all/<password>")
 def show_all(password = None):
     if (password != SOME_OTHER_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
         return html_dump()

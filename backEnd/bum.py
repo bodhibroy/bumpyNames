@@ -325,7 +325,7 @@ def link_wrap_ip(ip):
 default_maps = {'icon' : show_img, 'ip': link_wrap_ip, 'groper': link_wrap_ip, 'gropee': link_wrap_ip}
 
 def link_wrap_ip_admin(ip):
-    return "<A HREF=\'{0}\'>{1}</A> <A HREF=\'{2}\' TARGET=_blank>Kick</A>".format(url_for('show_user', ip=ip), ip, url_for('kick_player', ip=ip, password=SOME_OTHER_PA55W0RD))
+    return "<A HREF=\'{0}\'>{1}</A> [<A HREF=\'{2}\' TARGET=_blank>Kick</A>]".format(url_for('show_user', ip=ip), ip, url_for('kick_player', ip=ip, password=SOME_OTHER_PA55W0RD))
 admin_maps = {'icon' : show_img, 'ip': link_wrap_ip_admin, 'groper': link_wrap_ip, 'gropee': link_wrap_ip}
 
 

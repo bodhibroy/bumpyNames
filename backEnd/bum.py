@@ -238,8 +238,8 @@ def clear_coins(password = None):
     d['success'] = db_mgmt.clear_coins()
     return jsonify(d), 200
 
-@app.route("/kick_player/ip")
-@app.route("/kick_player/ip/<password>")
+@app.route("/kick_player/<ip>")
+@app.route("/kick_player/<ip>/<password>")
 def kick_player(ip, password = None):
     if (password != SOME_OTHER_PA55W0RD) and (request.remote_addr != '127.0.0.1'):
         # Authentication Failed
